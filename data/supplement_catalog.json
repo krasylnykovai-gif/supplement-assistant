@@ -1,0 +1,280 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-02-17",
+  "sources": [
+    "https://ods.od.nih.gov/factsheets/list-all/",
+    "https://www.health.harvard.edu/topics/vitamins-and-supplements",
+    "https://examine.com/"
+  ],
+  "supplements": {
+    "vitamin_d": {
+      "id": "vitamin_d",
+      "name": "Вітамін D",
+      "aliases": [
+        "вітамін д",
+        "vitamin d3",
+        "d3",
+        "холекальциферол",
+        "кальциферол"
+      ],
+      "category": "vitamin",
+      "timing": {
+        "with_food": true,
+        "fat_required": true,
+        "best_time": "morning",
+        "notes": "Краще з жирною їжею для засвоєння"
+      },
+      "source": "https://ods.od.nih.gov/factsheets/VitaminD-HealthProfessional/"
+    },
+    "omega_3": {
+      "id": "omega_3",
+      "name": "Омега-3",
+      "aliases": [
+        "омега 3",
+        "риб'ячий жир",
+        "fish oil",
+        "epa",
+        "dha",
+        "омега-3"
+      ],
+      "category": "fatty_acid",
+      "timing": {
+        "with_food": true,
+        "fat_required": false,
+        "best_time": "any",
+        "notes": "З їжею для зменшення відригування"
+      },
+      "source": "https://ods.od.nih.gov/factsheets/Omega3FattyAcids-HealthProfessional/"
+    },
+    "magnesium": {
+      "id": "magnesium",
+      "name": "Магній",
+      "aliases": [
+        "магнезіум",
+        "magnesium glycinate",
+        "магній гліцинат",
+        "магній цитрат"
+      ],
+      "category": "mineral",
+      "timing": {
+        "with_food": true,
+        "fat_required": false,
+        "best_time": "evening",
+        "notes": "Ввечері для кращого сну та розслаблення м'язів"
+      },
+      "source": "https://ods.od.nih.gov/factsheets/Magnesium-HealthProfessional/"
+    },
+    "iron": {
+      "id": "iron",
+      "name": "Залізо",
+      "aliases": [
+        "залізо",
+        "iron",
+        "феррум",
+        "fe"
+      ],
+      "category": "mineral",
+      "timing": {
+        "with_food": false,
+        "fat_required": false,
+        "best_time": "morning",
+        "notes": "Натщесерце або з вітаміном C для кращого засвоєння"
+      },
+      "source": "https://ods.od.nih.gov/factsheets/Iron-HealthProfessional/"
+    },
+    "zinc": {
+      "id": "zinc",
+      "name": "Цинк",
+      "aliases": [
+        "цинк",
+        "zinc",
+        "zn"
+      ],
+      "category": "mineral",
+      "timing": {
+        "with_food": true,
+        "fat_required": false,
+        "best_time": "any",
+        "notes": "З їжею, щоб уникнути нудоти"
+      },
+      "source": "https://ods.od.nih.gov/factsheets/Zinc-HealthProfessional/"
+    },
+    "vitamin_b12": {
+      "id": "vitamin_b12",
+      "name": "Вітамін B12",
+      "aliases": [
+        "b12",
+        "б12",
+        "кобаламін",
+        "ціанокобаламін",
+        "метилкобаламін"
+      ],
+      "category": "vitamin",
+      "timing": {
+        "with_food": false,
+        "fat_required": false,
+        "best_time": "morning",
+        "notes": "Вранці для енергії протягом дня"
+      },
+      "source": "https://ods.od.nih.gov/factsheets/VitaminB12-HealthProfessional/"
+    },
+    "calcium": {
+      "id": "calcium",
+      "name": "Кальцій",
+      "aliases": [
+        "кальцій",
+        "calcium",
+        "ca"
+      ],
+      "category": "mineral",
+      "timing": {
+        "with_food": true,
+        "fat_required": false,
+        "best_time": "any",
+        "split_doses": true,
+        "notes": "Розділити на 2-3 прийоми (макс 500мг за раз)"
+      },
+      "source": "https://ods.od.nih.gov/factsheets/Calcium-HealthProfessional/"
+    },
+    "vitamin_c": {
+      "id": "vitamin_c",
+      "name": "Вітамін C",
+      "aliases": [
+        "вітамін с",
+        "аскорбінова кислота",
+        "ascorbic acid"
+      ],
+      "category": "vitamin",
+      "timing": {
+        "with_food": true,
+        "fat_required": false,
+        "best_time": "morning",
+        "notes": "З їжею для зменшення подразнення шлунку"
+      },
+      "source": "https://ods.od.nih.gov/factsheets/VitaminC-HealthProfessional/"
+    },
+    "psyllium": {
+      "id": "psyllium",
+      "name": "Псиліум",
+      "aliases": [
+        "псиліум",
+        "psyllium husk",
+        "лушпиння подорожника",
+        "ісабгол"
+      ],
+      "category": "fiber",
+      "timing": {
+        "with_food": false,
+        "fat_required": false,
+        "best_time": "any",
+        "water_required": true,
+        "notes": "За 30 хв до або 2 год після їжі. Обов'язково з великою кількістю води!"
+      },
+      "source": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6358997/"
+    },
+    "berberine": {
+      "id": "berberine",
+      "name": "Берберин",
+      "aliases": [
+        "берберін",
+        "berberine",
+        "барберін"
+      ],
+      "category": "botanical",
+      "timing": {
+        "with_food": true,
+        "fat_required": false,
+        "best_time": "any",
+        "split_doses": true,
+        "notes": "З їжею, розділити на 2-3 прийоми"
+      },
+      "source": "https://examine.com/supplements/berberine/"
+    },
+    "collagen": {
+      "id": "collagen",
+      "name": "Колаген",
+      "aliases": [
+        "колаген",
+        "collagen",
+        "collagen peptides",
+        "гідролізований колаген"
+      ],
+      "category": "protein",
+      "timing": {
+        "with_food": false,
+        "fat_required": false,
+        "best_time": "morning",
+        "notes": "Натщесерце або між прийомами їжі для кращого засвоєння"
+      },
+      "source": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6835901/"
+    },
+    "urolithin_a": {
+      "id": "urolithin_a",
+      "name": "Уролітин А",
+      "aliases": [
+        "уролітин а",
+        "urolithin a",
+        "mitopure"
+      ],
+      "category": "metabolite",
+      "timing": {
+        "with_food": true,
+        "fat_required": false,
+        "best_time": "morning",
+        "notes": "З їжею вранці"
+      },
+      "source": "https://www.nature.com/articles/s42255-019-0073-4"
+    },
+    "lymphomyosot": {
+      "id": "lymphomyosot",
+      "name": "Лімфоміазот",
+      "aliases": [
+        "лімфоміазот",
+        "lymphomyosot",
+        "лімфоміозот"
+      ],
+      "category": "homeopathic",
+      "timing": {
+        "with_food": false,
+        "fat_required": false,
+        "best_time": "any",
+        "notes": "За 15-30 хв до їжі або через 1 год після"
+      },
+      "source": "https://www.heel.com/",
+      "warning": "Гомеопатичний засіб. Ефективність не підтверджена клінічними дослідженнями."
+    },
+    "artichoke": {
+      "id": "artichoke",
+      "name": "Артишок",
+      "aliases": [
+        "артишок",
+        "artichoke extract",
+        "екстракт артишоку",
+        "цинарін"
+      ],
+      "category": "botanical",
+      "timing": {
+        "with_food": true,
+        "fat_required": false,
+        "best_time": "any",
+        "notes": "Перед або під час їжі для підтримки травлення"
+      },
+      "source": "https://examine.com/supplements/artichoke-extract/"
+    },
+    "коензим_q10": {
+      "id": "коензим_q10",
+      "name": "Коензим Q10",
+      "aliases": [
+        "коензим q10"
+      ],
+      "category": "custom",
+      "timing": {
+        "with_food": true,
+        "fat_required": true,
+        "best_time": "morning",
+        "notes": "Жиророзчинний, приймати з їжею що містить жири. Може давати енергію — краще вранці."
+      },
+      "source": "https://examine.com/supplements/coenzyme-q10/"
+    }
+  }
+}

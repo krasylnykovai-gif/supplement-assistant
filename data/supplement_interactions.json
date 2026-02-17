@@ -1,0 +1,90 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-02-17",
+  "interaction_types": {
+    "synergy": "✅ Синергія — підсилюють дію один одного",
+    "separate": "⚠️ Рознести — приймати з інтервалом",
+    "avoid": "⛔ Уникати — не поєднувати"
+  },
+  "interactions": [
+    {
+      "pair": ["iron", "calcium"],
+      "type": "separate",
+      "interval_hours": 2,
+      "reason": "Кальцій знижує засвоєння заліза на 50-60%",
+      "source": "https://pubmed.ncbi.nlm.nih.gov/2507689/"
+    },
+    {
+      "pair": ["iron", "zinc"],
+      "type": "separate",
+      "interval_hours": 2,
+      "reason": "Конкурують за одні транспортери в кишечнику",
+      "source": "https://pubmed.ncbi.nlm.nih.gov/12644045/"
+    },
+    {
+      "pair": ["iron", "vitamin_c"],
+      "type": "synergy",
+      "reason": "Вітамін C підвищує засвоєння заліза в 2-3 рази",
+      "source": "https://pubmed.ncbi.nlm.nih.gov/2507689/"
+    },
+    {
+      "pair": ["vitamin_d", "calcium"],
+      "type": "synergy",
+      "reason": "Вітамін D необхідний для засвоєння кальцію",
+      "source": "https://ods.od.nih.gov/factsheets/VitaminD-HealthProfessional/"
+    },
+    {
+      "pair": ["vitamin_d", "magnesium"],
+      "type": "synergy",
+      "reason": "Магній необхідний для активації вітаміну D",
+      "source": "https://pubmed.ncbi.nlm.nih.gov/29480918/"
+    },
+    {
+      "pair": ["calcium", "magnesium"],
+      "type": "separate",
+      "interval_hours": 2,
+      "reason": "Конкурують за засвоєння при високих дозах",
+      "source": "https://pubmed.ncbi.nlm.nih.gov/8463386/"
+    },
+    {
+      "pair": ["zinc", "calcium"],
+      "type": "separate",
+      "interval_hours": 2,
+      "reason": "Кальцій може знижувати засвоєння цинку",
+      "source": "https://pubmed.ncbi.nlm.nih.gov/9701160/"
+    },
+    {
+      "pair": ["psyllium", "any"],
+      "type": "separate",
+      "interval_hours": 2,
+      "reason": "Псиліум може зв'язувати інші добавки та знижувати їх засвоєння",
+      "source": "https://www.ncbi.nlm.nih.gov/books/NBK532937/"
+    },
+    {
+      "pair": ["berberine", "vitamin_b12"],
+      "type": "separate",
+      "interval_hours": 4,
+      "reason": "Берберин може знижувати засвоєння B12",
+      "source": "https://examine.com/supplements/berberine/"
+    },
+    {
+      "pair": ["collagen", "vitamin_c"],
+      "type": "synergy",
+      "reason": "Вітамін C необхідний для синтезу колагену",
+      "source": "https://pubmed.ncbi.nlm.nih.gov/28786550/"
+    },
+    {
+      "pair": ["omega_3", "vitamin_d"],
+      "type": "synergy",
+      "reason": "Жири омега-3 покращують засвоєння жиророзчинного вітаміну D",
+      "source": "https://pubmed.ncbi.nlm.nih.gov/25441954/"
+    },
+    {
+      "pair": ["artichoke", "iron"],
+      "type": "separate",
+      "interval_hours": 2,
+      "reason": "Поліфеноли артишоку можуть знижувати засвоєння заліза",
+      "source": "https://pubmed.ncbi.nlm.nih.gov/10720176/"
+    }
+  ]
+}
