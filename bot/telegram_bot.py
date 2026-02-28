@@ -7,6 +7,7 @@ import json
 import logging
 import asyncio
 from pathlib import Path
+from datetime import datetime, timezone
 from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
@@ -46,6 +47,109 @@ user_selections = {}  # user_id -> set of supplement_ids
 user_plans = {}       # user_id -> generated plan
 user_adding = {}      # user_id -> True if in adding mode
 user_setting_time = {}  # user_id -> meal_name for time setting flow
+
+# User analytics
+USERS_DATA_PATH = Path(__file__).parent.parent / "data" / "users.json"
+
+
+def load_users_data():
+    """Load users analytics data"""
+    if USERS_DATA_PATH.exists():
+        try:
+            with open(USERS_DATA_PATH, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception as e:
+            logger.error(f"Error loading users data: {e}")
+    
+    return {
+        "unique_users": [],  # list of user_ids
+        "user_details": {},  # user_id -> {first_seen, last_seen, username, first_name, start_count}
+        "daily_stats": {},   # date -> {new_users: count, active_users: [user_ids]}
+        "total_unique": 0
+    }
+
+
+def save_users_data(users_data):
+    """Save users analytics data"""
+    try:
+        # Ensure data directory exists
+        USERS_DATA_PATH.parent.mkdir(exist_ok=True)
+        
+        # Update total count
+        users_data["total_unique"] = len(users_data["unique_users"])
+        
+        with open(USERS_DATA_PATH, 'w', encoding='utf-8') as f:
+            json.dump(users_data, f, ensure_ascii=False, indent=2, default=str)
+        
+        logger.info(f"Users data saved: {users_data['total_unique']} unique users")
+        
+    except Exception as e:
+        logger.error(f"Error saving users data: {e}")
+
+
+def log_user_start(user):
+    """Log user /start command for analytics"""
+    user_id = user.id
+    username = user.username or "N/A"
+    first_name = user.first_name or "N/A"
+    
+    now = datetime.now(timezone.utc)
+    today = now.date().isoformat()
+    timestamp = now.isoformat()
+    
+    # Load current data
+    users_data = load_users_data()
+    
+    # Check if user is new
+    is_new_user = user_id not in users_data["unique_users"]
+    
+    if is_new_user:
+        # Add to unique users list
+        users_data["unique_users"].append(user_id)
+        
+        # Add detailed info
+        users_data["user_details"][str(user_id)] = {
+            "first_seen": timestamp,
+            "last_seen": timestamp,
+            "username": username,
+            "first_name": first_name,
+            "start_count": 1
+        }
+        
+        logger.info(f"NEW USER: {first_name} (@{username}, ID: {user_id})")
+        
+    else:
+        # Update existing user info
+        user_details = users_data["user_details"].get(str(user_id), {})
+        user_details.update({
+            "last_seen": timestamp,
+            "username": username,  # Update in case changed
+            "first_name": first_name,  # Update in case changed  
+            "start_count": user_details.get("start_count", 0) + 1
+        })
+        users_data["user_details"][str(user_id)] = user_details
+        
+        logger.info(f"RETURNING USER: {first_name} (@{username}, ID: {user_id}) - {user_details['start_count']} times")
+    
+    # Update daily stats
+    if today not in users_data["daily_stats"]:
+        users_data["daily_stats"][today] = {
+            "new_users": 0,
+            "active_users": []
+        }
+    
+    daily_stats = users_data["daily_stats"][today]
+    
+    if is_new_user:
+        daily_stats["new_users"] += 1
+    
+    if user_id not in daily_stats["active_users"]:
+        daily_stats["active_users"].append(user_id)
+    
+    # Save updated data
+    save_users_data(users_data)
+    
+    return is_new_user
 
 
 def reload_normalizer():
@@ -190,6 +294,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     user_selections[user_id] = set()
     user_adding.pop(user_id, None)
+    
+    # Log user for analytics
+    is_new_user = log_user_start(update.effective_user)
     
     welcome_text = """👋 *Вітаю! Я твій науковий помічник з БАДів*
 
@@ -706,6 +813,95 @@ async def about_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 _Створено з 🇺🇦 для здоров'я українців_"""
     
     await update.message.reply_text(about_text, parse_mode='Markdown')
+
+
+async def users_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Show user analytics (admin only)"""
+    user_id = update.effective_user.id
+    
+    # Admin user IDs - Irina's user ID
+    admin_users = [383087326]  # Irina's user ID
+    
+    if user_id not in admin_users:
+        await update.message.reply_text(
+            "⚠️ Команда доступна тільки адміністраторам.",
+            parse_mode='Markdown'
+        )
+        return
+    
+    try:
+        users_data = load_users_data()
+        
+        # Basic stats
+        total_unique = users_data.get("total_unique", 0)
+        
+        # Recent activity
+        recent_days = list(users_data.get("daily_stats", {}).keys())[-7:]  # Last 7 days
+        
+        # Calculate weekly stats
+        weekly_new = 0
+        weekly_active = set()
+        
+        for day in recent_days:
+            day_stats = users_data["daily_stats"].get(day, {})
+            weekly_new += day_stats.get("new_users", 0)
+            weekly_active.update(day_stats.get("active_users", []))
+        
+        # Today's stats
+        today = datetime.now(timezone.utc).date().isoformat()
+        today_stats = users_data.get("daily_stats", {}).get(today, {})
+        today_new = today_stats.get("new_users", 0)
+        today_active = len(today_stats.get("active_users", []))
+        
+        # Most active users (top 5)
+        user_activity = []
+        for uid, details in users_data.get("user_details", {}).items():
+            start_count = details.get("start_count", 0)
+            first_name = details.get("first_name", "N/A")
+            username = details.get("username", "N/A")
+            
+            user_activity.append((start_count, first_name, username, uid))
+        
+        user_activity.sort(reverse=True)
+        top_users = user_activity[:5]
+        
+        # Format stats message
+        stats_text = f"""📊 *Аналітика користувачів*
+
+**📈 Загальна статистика:**
+👥 Всього унікальних користувачів: *{total_unique}*
+
+**📅 Сьогодні ({today}):**
+🆕 Нових користувачів: *{today_new}*
+👤 Активних користувачів: *{today_active}*
+
+**📊 За тиждень:**
+🆕 Нових користувачів: *{weekly_new}*  
+👤 Активних користувачів: *{len(weekly_active)}*
+
+**🏆 Топ-5 найактивніших:**"""
+
+        for i, (count, name, username, uid) in enumerate(top_users, 1):
+            username_text = f"@{username}" if username != "N/A" else "без username"
+            stats_text += f"\n{i}. {name} ({username_text}) - {count} разів"
+
+        # Recent daily breakdown
+        stats_text += "\n\n**📈 Активність по днях:**"
+        for day in recent_days:
+            day_stats = users_data["daily_stats"].get(day, {})
+            new_count = day_stats.get("new_users", 0)
+            active_count = len(day_stats.get("active_users", []))
+            stats_text += f"\n• {day}: +{new_count} нових, {active_count} активних"
+        
+        stats_text += f"\n\n📍 *Данні оновлено: {datetime.now(timezone.utc).strftime('%H:%M UTC')}*"
+        
+        await update.message.reply_text(stats_text, parse_mode='Markdown')
+        
+    except Exception as e:
+        logger.error(f"Error in users_command: {e}")
+        await update.message.reply_text(
+            f"❌ Помилка отримання статистики: {str(e)}"
+        )
 
 
 async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -1272,7 +1468,7 @@ async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     
     # Simple admin check (you can add your user ID here)
-    admin_users = []  # Add admin user IDs here
+    admin_users = [383087326]  # Irina's user ID
     
     try:
         from core.intelligent_lookup import IntelligentLookup
@@ -1376,6 +1572,7 @@ def main():
     application.add_handler(CommandHandler("reminders", reminders_command))
     application.add_handler(CommandHandler("sources", sources_command))
     application.add_handler(CommandHandler("about", about_command))
+    application.add_handler(CommandHandler("users", users_command))  # Admin only
     application.add_handler(CommandHandler("stats", stats_command))
     
     # Button handler

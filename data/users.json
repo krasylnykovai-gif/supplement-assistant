@@ -1,0 +1,50 @@
+{
+  "unique_users": [
+    12345,
+    67890,
+    11111,
+    22222
+  ],
+  "user_details": {
+    "12345": {
+      "first_seen": "2026-02-28T18:26:34.388904+00:00",
+      "last_seen": "2026-02-28T18:26:34.397050+00:00",
+      "username": "test_user_1",
+      "first_name": "Alice",
+      "start_count": 2
+    },
+    "67890": {
+      "first_seen": "2026-02-28T18:26:34.389687+00:00",
+      "last_seen": "2026-02-28T18:26:34.389687+00:00",
+      "username": "test_user_2",
+      "first_name": "Bob",
+      "start_count": 1
+    },
+    "11111": {
+      "first_seen": "2026-02-28T18:26:34.405597+00:00",
+      "last_seen": "2026-02-28T18:26:34.405597+00:00",
+      "username": "N/A",
+      "first_name": "Charlie",
+      "start_count": 1
+    },
+    "22222": {
+      "first_seen": "2026-02-28T18:26:34.412065+00:00",
+      "last_seen": "2026-02-28T18:26:34.412065+00:00",
+      "username": "test_user_4",
+      "first_name": "N/A",
+      "start_count": 1
+    }
+  },
+  "daily_stats": {
+    "2026-02-28": {
+      "new_users": 4,
+      "active_users": [
+        12345,
+        67890,
+        11111,
+        22222
+      ]
+    }
+  },
+  "total_unique": 4
+}
