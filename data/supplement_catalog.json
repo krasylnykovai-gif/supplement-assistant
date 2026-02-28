@@ -275,6 +275,81 @@
         "notes": "Жиророзчинний, приймати з їжею що містить жири. Може давати енергію — краще вранці."
       },
       "source": "https://examine.com/supplements/coenzyme-q10/"
+    },
+    "цитиколин": {
+      "id": "цитиколин",
+      "name": "Цитиколин",
+      "aliases": [
+        "цитиколин"
+      ],
+      "category": "custom",
+      "timing": {
+        "with_food": true,
+        "fat_required": false,
+        "best_time": "any",
+        "notes": "Unknown supplement. Safe recommendation: take with food to reduce stomach upset. (Based on supplement category analysis)"
+      },
+      "source": "pattern_analysis"
+    },
+    "меланотан": {
+      "id": "меланотан",
+      "name": "Меланотан",
+      "aliases": [
+        "меланотан"
+      ],
+      "category": "custom",
+      "timing": {
+        "with_food": true,
+        "fat_required": false,
+        "best_time": "any",
+        "notes": "Unknown supplement. Safe recommendation: take with food to reduce stomach upset. (Based on supplement category analysis)"
+      },
+      "source": "pattern_analysis"
+    },
+    "никотинамид_моноуклеотид": {
+      "id": "никотинамид_моноуклеотид",
+      "name": "Никотинамид Моноуклеотид",
+      "aliases": [
+        "никотинамид моноуклеотид"
+      ],
+      "category": "custom",
+      "timing": {
+        "with_food": true,
+        "fat_required": false,
+        "best_time": "any",
+        "notes": "Unknown supplement. Safe recommendation: take with food to reduce stomach upset. (Based on supplement category analysis)"
+      },
+      "source": "pattern_analysis"
+    },
+    "гиперзин": {
+      "id": "гиперзин",
+      "name": "Гиперзин",
+      "aliases": [
+        "гиперзин"
+      ],
+      "category": "custom",
+      "timing": {
+        "with_food": true,
+        "fat_required": false,
+        "best_time": "any",
+        "notes": "Unknown supplement. Safe recommendation: take with food to reduce stomach upset. (Based on supplement category analysis)"
+      },
+      "source": "pattern_analysis"
+    },
+    "кверцитин": {
+      "id": "кверцитин",
+      "name": "Кверцитин",
+      "aliases": [
+        "кверцитин"
+      ],
+      "category": "custom",
+      "timing": {
+        "with_food": true,
+        "fat_required": false,
+        "best_time": "any",
+        "notes": "Unknown supplement. Safe recommendation: take with food to reduce stomach upset. (Based on supplement category analysis)"
+      },
+      "source": "pattern_analysis"
     }
   }
 }

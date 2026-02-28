@@ -1,0 +1,282 @@
+{
+  "383087326": {
+    "user_id": 383087326,
+    "timezone": "Europe/Kiev",
+    "meals": [
+      {
+        "name": "breakfast",
+        "typical_time": "08:00",
+        "flexibility_minutes": 60,
+        "reminder_offset_minutes": 30,
+        "enabled": true
+      },
+      {
+        "name": "lunch",
+        "typical_time": "13:00",
+        "flexibility_minutes": 90,
+        "reminder_offset_minutes": 30,
+        "enabled": true
+      },
+      {
+        "name": "dinner",
+        "typical_time": "19:00",
+        "flexibility_minutes": 120,
+        "reminder_offset_minutes": 30,
+        "enabled": true
+      }
+    ],
+    "reminders": [
+      {
+        "supplement_id": "collagen",
+        "supplement_name": "Колаген",
+        "meal": "breakfast",
+        "dosage": "",
+        "notes": "Натщесерце або між прийомами їжі для кращого засвоєння",
+        "enabled": true
+      },
+      {
+        "supplement_id": "lymphomyosot",
+        "supplement_name": "Лімфоміазот",
+        "meal": "breakfast",
+        "dosage": "",
+        "notes": "За 15-30 хв до їжі або через 1 год після",
+        "enabled": true
+      },
+      {
+        "supplement_id": "никотинамид_моноуклеотид",
+        "supplement_name": "Никотинамид Моноуклеотид",
+        "meal": "breakfast",
+        "dosage": "",
+        "notes": "Unknown supplement. Safe recommendation: take with food to reduce stomach upset. (Based on supplement category analysis)",
+        "enabled": true
+      },
+      {
+        "supplement_id": "calcium",
+        "supplement_name": "Кальцій",
+        "meal": "breakfast",
+        "dosage": "",
+        "notes": "Розділити на 2-3 прийоми (макс 500мг за раз)",
+        "enabled": true
+      },
+      {
+        "supplement_id": "коензим_q10",
+        "supplement_name": "Коензим Q10",
+        "meal": "breakfast",
+        "dosage": "",
+        "notes": "Жиророзчинний, приймати з їжею що містить жири. Може давати енергію — краще вранці.",
+        "enabled": true
+      },
+      {
+        "supplement_id": "vitamin_c",
+        "supplement_name": "Вітамін C",
+        "meal": "breakfast",
+        "dosage": "",
+        "notes": "З їжею для зменшення подразнення шлунку",
+        "enabled": true
+      },
+      {
+        "supplement_id": "berberine",
+        "supplement_name": "Берберин",
+        "meal": "breakfast",
+        "dosage": "",
+        "notes": "З їжею, розділити на 2-3 прийоми",
+        "enabled": true
+      },
+      {
+        "supplement_id": "urolithin_a",
+        "supplement_name": "Уролітин А",
+        "meal": "breakfast",
+        "dosage": "",
+        "notes": "З їжею вранці",
+        "enabled": true
+      },
+      {
+        "supplement_id": "цитиколин",
+        "supplement_name": "Цитиколин",
+        "meal": "breakfast",
+        "dosage": "",
+        "notes": "Unknown supplement. Safe recommendation: take with food to reduce stomach upset. (Based on supplement category analysis)",
+        "enabled": true
+      },
+      {
+        "supplement_id": "меланотан",
+        "supplement_name": "Меланотан",
+        "meal": "breakfast",
+        "dosage": "",
+        "notes": "Unknown supplement. Safe recommendation: take with food to reduce stomach upset. (Based on supplement category analysis)",
+        "enabled": true
+      },
+      {
+        "supplement_id": "iron",
+        "supplement_name": "Залізо",
+        "meal": "lunch",
+        "dosage": "",
+        "notes": "Натщесерце або з вітаміном C для кращого засвоєння",
+        "enabled": true
+      },
+      {
+        "supplement_id": "vitamin_b12",
+        "supplement_name": "Вітамін B12",
+        "meal": "lunch",
+        "dosage": "",
+        "notes": "Вранці для енергії протягом дня",
+        "enabled": true
+      },
+      {
+        "supplement_id": "psyllium",
+        "supplement_name": "Псиліум",
+        "meal": "dinner",
+        "dosage": "",
+        "notes": "За 30 хв до або 2 год після їжі. Обов'язково з великою кількістю води!",
+        "enabled": true
+      }
+    ],
+    "last_updated": "2026-02-28T18:13:00.643610"
+  },
+  "876296579": {
+    "user_id": 876296579,
+    "timezone": "Europe/Kiev",
+    "meals": [
+      {
+        "name": "breakfast",
+        "typical_time": "08:00",
+        "flexibility_minutes": 60,
+        "reminder_offset_minutes": 30,
+        "enabled": true
+      },
+      {
+        "name": "lunch",
+        "typical_time": "13:00",
+        "flexibility_minutes": 90,
+        "reminder_offset_minutes": 30,
+        "enabled": true
+      },
+      {
+        "name": "dinner",
+        "typical_time": "19:00",
+        "flexibility_minutes": 120,
+        "reminder_offset_minutes": 30,
+        "enabled": true
+      }
+    ],
+    "reminders": [
+      {
+        "supplement_id": "collagen",
+        "supplement_name": "Колаген",
+        "meal": "breakfast",
+        "dosage": "",
+        "notes": "Натщесерце або між прийомами їжі для кращого засвоєння",
+        "enabled": true
+      },
+      {
+        "supplement_id": "vitamin_d",
+        "supplement_name": "Вітамін D",
+        "meal": "breakfast",
+        "dosage": "",
+        "notes": "Краще з жирною їжею для засвоєння",
+        "enabled": true
+      },
+      {
+        "supplement_id": "omega_3",
+        "supplement_name": "Омега-3",
+        "meal": "breakfast",
+        "dosage": "",
+        "notes": "З їжею для зменшення відригування",
+        "enabled": true
+      }
+    ],
+    "last_updated": "2026-02-28T18:21:09.339471"
+  },
+  "253533092": {
+    "user_id": 253533092,
+    "timezone": "Europe/Kiev",
+    "meals": [
+      {
+        "name": "breakfast",
+        "typical_time": "08:00",
+        "flexibility_minutes": 60,
+        "reminder_offset_minutes": 30,
+        "enabled": true
+      },
+      {
+        "name": "lunch",
+        "typical_time": "13:00",
+        "flexibility_minutes": 90,
+        "reminder_offset_minutes": 30,
+        "enabled": true
+      },
+      {
+        "name": "dinner",
+        "typical_time": "19:00",
+        "flexibility_minutes": 120,
+        "reminder_offset_minutes": 30,
+        "enabled": true
+      }
+    ],
+    "reminders": [
+      {
+        "supplement_id": "magnesium",
+        "supplement_name": "Магній",
+        "meal": "dinner",
+        "dosage": "",
+        "notes": "Ввечері для кращого сну та розслаблення м'язів",
+        "enabled": true
+      }
+    ],
+    "last_updated": "2026-02-28T18:23:33.022850"
+  },
+  "268845099": {
+    "user_id": 268845099,
+    "timezone": "Europe/Kiev",
+    "meals": [
+      {
+        "name": "breakfast",
+        "typical_time": "08:00",
+        "flexibility_minutes": 60,
+        "reminder_offset_minutes": 30,
+        "enabled": true
+      },
+      {
+        "name": "lunch",
+        "typical_time": "13:00",
+        "flexibility_minutes": 90,
+        "reminder_offset_minutes": 30,
+        "enabled": true
+      },
+      {
+        "name": "dinner",
+        "typical_time": "19:00",
+        "flexibility_minutes": 120,
+        "reminder_offset_minutes": 30,
+        "enabled": true
+      }
+    ],
+    "reminders": [
+      {
+        "supplement_id": "zinc",
+        "supplement_name": "Цинк",
+        "meal": "breakfast",
+        "dosage": "",
+        "notes": "З їжею, щоб уникнути нудоти",
+        "enabled": true
+      },
+      {
+        "supplement_id": "vitamin_d",
+        "supplement_name": "Вітамін D",
+        "meal": "breakfast",
+        "dosage": "",
+        "notes": "Краще з жирною їжею для засвоєння",
+        "enabled": true
+      },
+      {
+        "supplement_id": "magnesium",
+        "supplement_name": "Магній",
+        "meal": "dinner",
+        "dosage": "",
+        "notes": "Ввечері для кращого сну та розслаблення м'язів",
+        "enabled": true
+      }
+    ],
+    "last_updated": "2026-02-28T18:33:42.453256"
+  }
+}
