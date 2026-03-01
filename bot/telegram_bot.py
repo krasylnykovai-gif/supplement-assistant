@@ -263,6 +263,28 @@ def get_after_add_keyboard(has_multiple_supplements: bool = False) -> InlineKeyb
     return InlineKeyboardMarkup(buttons)
 
 
+def get_enhanced_after_add_keyboard(has_multiple_supplements: bool = False) -> InlineKeyboardMarkup:
+    """Enhanced keyboard with clearer next steps after adding a supplement"""
+    if has_multiple_supplements:
+        # User has multiple supplements - prioritize plan creation
+        buttons = [
+            [InlineKeyboardButton("🔍 Перевірити сумісність БАДів", callback_data="check_compatibility")],
+            [InlineKeyboardButton("📅 Створити план прийому", callback_data="build_plan")],
+            [InlineKeyboardButton("➕ Додати ще один БАД", callback_data="start_add")],
+            [InlineKeyboardButton("📋 Переглянути всі мої БАДи", callback_data="back_to_selection")]
+        ]
+    else:
+        # First supplement - encourage adding more
+        buttons = [
+            [InlineKeyboardButton("➕ Додати ще БАДів", callback_data="start_add")],
+            [InlineKeyboardButton("📋 Переглянути каталог БАДів", callback_data="back_to_selection")],
+            [InlineKeyboardButton("📚 Наукові джерела", callback_data="show_sources")],
+            [InlineKeyboardButton("ℹ️ Як користуватися ботом", callback_data="show_help")]
+        ]
+    
+    return InlineKeyboardMarkup(buttons)
+
+
 def get_not_found_keyboard(name: str) -> InlineKeyboardMarkup:
     """Keyboard when supplement info not found - ask user"""
     buttons = [
@@ -507,6 +529,10 @@ async def process_new_supplement(update: Update, context: ContextTypes.DEFAULT_T
             "evening": "🌙 ввечері"
         }
         
+        # Check if user has multiple supplements for better keyboard
+        user_supplement_count = len(user_selections.get(user_id, set())) + 1  # +1 for just added
+        has_multiple = user_supplement_count > 1
+        
         # Create comprehensive information message
         text = f"✅ *{info.name}* успішно додано!\n"
         text += "━━━━━━━━━━━━━━━━━━━━━━\n\n"
@@ -539,27 +565,31 @@ async def process_new_supplement(update: Update, context: ContextTypes.DEFAULT_T
             except:
                 pass
         
-        # Check if user has multiple supplements for better keyboard
-        user_supplement_count = len(user_selections.get(user_id, set())) + 1  # +1 for just added
-        has_multiple = user_supplement_count > 1
+        # Clear next steps section with better emphasis
+        text += "━━━━━━━━━━━━━━━━━━━━━━\n"
+        text += "🎯 *ЩО РОБИТИ ДАЛІ?*\n\n"
         
-        text += "🎯 *Що далі?*\n"
         if has_multiple:
-            text += "• Додай ще БАДів або побудуй план прийому\n"
-            text += "• Налаштуй розклад нагадувань\n"
-            text += "• Перевір сумісність з іншими БАДами"
+            text += "✨ У тебе вже є кілька БАДів! Можеш:\n"
+            text += "• 🔍 **Перевірити сумісність** всіх БАДів\n"
+            text += "• 📅 **Створити розклад** прийому\n"
+            text += "• ➕ **Додати ще БАДів**\n"
+            text += "• 📋 **Переглянути список** всіх БАДів"
         else:
-            text += "• Додай ще БАДів для комплексного плану\n"
-            text += "• Налаштуй персональний розклад прийому"
+            text += "💡 Це твій перший БАД! Рекомендую:\n"
+            text += "• ➕ **Додати ще БАДів** для комплексного підходу\n"
+            text += "• 📋 **Переглянути весь каталог** БАДів\n"
+            text += "• 📚 **Дізнатися більше** про наукові джерела"
         
-        keyboard = get_after_add_keyboard(has_multiple)
+        text += "\n👇 **Обери дію нижче:**"
+        
+        keyboard = get_enhanced_after_add_keyboard(has_multiple)
         user_adding.pop(user_id, None)
         
         # Update final message with results
         if is_callback:
             await update.callback_query.edit_message_text(
-                f"🔍 *Результат пошуку:*\n\n✅ *Знайдено!*\n\n{text}",
-                reply_markup=keyboard, parse_mode='Markdown'
+                text, reply_markup=keyboard, parse_mode='Markdown'
             )
         else:
             await search_msg.edit_text(
@@ -1025,6 +1055,10 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         food_text = "з їжею" if with_food else "натщесерце"
         time_display = {"morning": "🌅 вранці", "any": "🌤 будь-коли", "evening": "🌙 ввечері"}
         
+        # Check if user has multiple supplements
+        user_supplement_count = len(user_selections.get(user_id, set())) + 1
+        has_multiple = user_supplement_count > 1
+        
         # Create enhanced message for manually added supplement
         text = f"✅ *{name.title()}* успішно додано!\n"
         text += "━━━━━━━━━━━━━━━━━━━━━━\n\n"
@@ -1039,24 +1073,29 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         text += "🌟 *Твій внесок:*\n"
         text += f"_Інформація збережена і допоможе іншим користувачам_\n\n"
         
-        # Check if user has multiple supplements
-        user_supplement_count = len(user_selections.get(user_id, set())) + 1
-        has_multiple = user_supplement_count > 1
+        # Clear next steps section with better emphasis
+        text += "━━━━━━━━━━━━━━━━━━━━━━\n"
+        text += "🎯 *ЩО РОБИТИ ДАЛІ?*\n\n"
         
-        text += "🎯 *Що далі?*\n"
         if has_multiple:
-            text += "• Додай ще БАДів або побудуй план прийому\n"
-            text += "• Налаштуй розклад нагадувань\n" 
-            text += "• Перевір сумісність з іншими БАДами"
+            text += "✨ У тебе вже є кілька БАДів! Можеш:\n"
+            text += "• 🔍 **Перевірити сумісність** всіх БАДів\n"
+            text += "• 📅 **Створити розклад** прийому\n"
+            text += "• ➕ **Додати ще БАДів**\n"
+            text += "• 📋 **Переглянути список** всіх БАДів"
         else:
-            text += "• Додай ще БАДів для комплексного плану\n"
-            text += "• Налаштуй персональний розклад прийому"
+            text += "💡 Це твій перший БАД! Рекомендую:\n"
+            text += "• ➕ **Додати ще БАДів** для комплексного підходу\n"
+            text += "• 📋 **Переглянути весь каталог** БАДів\n"
+            text += "• 📚 **Дізнатися більше** про наукові джерела"
+        
+        text += "\n👇 **Обери дію нижче:**"
         
         user_adding.pop(user_id, None)
         
         await query.edit_message_text(
             text,
-            reply_markup=get_after_add_keyboard(has_multiple),
+            reply_markup=get_enhanced_after_add_keyboard(has_multiple),
             parse_mode='Markdown'
         )
         return
@@ -1200,7 +1239,25 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     if data == "back_to_selection":
         selected_count = len(user_selections.get(user_id, set()))
-        text = f"*Обрано БАДів: {selected_count}*\n\nОбери або зміни вибір:"
+        
+        # Show different message based on whether user has selections
+        if selected_count > 0:
+            text = f"📋 *Твої БАДи ({selected_count}):*\n\n"
+            
+            # List selected supplements
+            supplements = normalizer.get_all_supplements()
+            for supp_id in user_selections.get(user_id, set()):
+                supp_data = supplements.get(supp_id, {})
+                name = supp_data.get('name', supp_id)
+                text += f"✅ {name}\n"
+            
+            text += f"\n💡 Можеш додати ще БАДів або перевірити сумісність обраних.\n\n"
+            text += "👇 **Обери дію:**"
+            
+        else:
+            text = "📋 *Каталог БАДів*\n\n"
+            text += "Обери БАДи, які приймаєш або плануєш приймати:\n\n"
+            text += "💡 Не знаходиш потрібний БАД? Натисни **\"Додати БАД\"** - я знайду інформацію автоматично!"
         
         await query.edit_message_text(
             text,
