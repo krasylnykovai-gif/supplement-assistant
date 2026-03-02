@@ -1,50 +1,41 @@
 {
   "unique_users": [
-    12345,
-    67890,
-    11111,
-    22222
+    383087326,
+    111111,
+    222222
   ],
   "user_details": {
-    "12345": {
-      "first_seen": "2026-02-28T18:26:34.388904+00:00",
-      "last_seen": "2026-02-28T18:26:34.397050+00:00",
-      "username": "test_user_1",
-      "first_name": "Alice",
-      "start_count": 2
-    },
-    "67890": {
-      "first_seen": "2026-02-28T18:26:34.389687+00:00",
-      "last_seen": "2026-02-28T18:26:34.389687+00:00",
-      "username": "test_user_2",
-      "first_name": "Bob",
+    "383087326": {
+      "first_seen": "2026-03-02T11:29:17.040208+00:00",
+      "last_seen": "2026-03-02T11:29:17.040208+00:00",
+      "username": "irina_real",
+      "first_name": "Irina",
       "start_count": 1
     },
-    "11111": {
-      "first_seen": "2026-02-28T18:26:34.405597+00:00",
-      "last_seen": "2026-02-28T18:26:34.405597+00:00",
-      "username": "N/A",
-      "first_name": "Charlie",
+    "111111": {
+      "first_seen": "2026-03-02T11:29:17.042366+00:00",
+      "last_seen": "2026-03-02T11:29:17.042366+00:00",
+      "username": "user1",
+      "first_name": "Maxim",
       "start_count": 1
     },
-    "22222": {
-      "first_seen": "2026-02-28T18:26:34.412065+00:00",
-      "last_seen": "2026-02-28T18:26:34.412065+00:00",
-      "username": "test_user_4",
-      "first_name": "N/A",
+    "222222": {
+      "first_seen": "2026-03-02T11:29:17.049409+00:00",
+      "last_seen": "2026-03-02T11:29:17.049409+00:00",
+      "username": "user2",
+      "first_name": "Anna",
       "start_count": 1
     }
   },
   "daily_stats": {
-    "2026-02-28": {
-      "new_users": 4,
+    "2026-03-02": {
+      "new_users": 3,
       "active_users": [
-        12345,
-        67890,
-        11111,
-        22222
+        383087326,
+        111111,
+        222222
       ]
     }
   },
-  "total_unique": 4
+  "total_unique": 3
 }
