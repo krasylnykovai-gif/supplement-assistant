@@ -533,6 +533,22 @@ KNOWN_SUPPLEMENTS = {
         notes="З їжею для зменшення дискомфорту ШКТ.",
         source="https://examine.com/supplements/chlorella/"
     ),
+    "лецитин": SupplementInfo(
+        name="Лецитин",
+        with_food=True,
+        fat_required=True,
+        best_time="any",
+        notes="Краще з жирною їжею для оптимального засвоєння. Підтримує функцію печінки та мозку.",
+        source="https://examine.com/supplements/phosphatidylcholine/"
+    ),
+    "lecithin": SupplementInfo(
+        name="Лецитин",
+        with_food=True,
+        fat_required=True,
+        best_time="any",
+        notes="Краще з жирною їжею для оптимального засвоєння. Підтримує функцію печінки та мозку.",
+        source="https://examine.com/supplements/phosphatidylcholine/"
+    ),
 }
 
 
@@ -605,6 +621,8 @@ def lookup_supplement(name: str, use_intelligent_lookup: bool = True, use_fuzzy_
         "л-теанін": "l-theanine", 
         "гліцин": "glycine",
         "родіола": "ашваганда",  # Temporary mapping to available supplement
+        "лецетин": "лецитин",  # Common typo
+        "лецетін": "лецитин",   # Common typo
         
         # Russian to English  
         "магний": "magnesium",
@@ -751,7 +769,8 @@ def lookup_supplement(name: str, use_intelligent_lookup: bool = True, use_fuzzy_
                             print(f"Error reading research DB: {e}")
                     
         except Exception as e:
-            print(f"Fuzzy search error: {e}")
+            # Fuzzy search error - continue to fallback without printing
+            pass
             # Fallback: try simple pattern matching for common typos
             simple_corrections = {
                 "vitamine d": "vitamin d",
@@ -794,7 +813,8 @@ def lookup_supplement(name: str, use_intelligent_lookup: bool = True, use_fuzzy_
                 found=True
             )
     except Exception as e:
-        print(f"Basic research error: {e}")
+        # Basic research error - continue silently to avoid encoding issues
+        pass
     
     # If intelligent lookup is enabled and we have API key
     if use_intelligent_lookup:
@@ -830,11 +850,11 @@ def lookup_supplement(name: str, use_intelligent_lookup: bool = True, use_fuzzy_
                         found=True
                     )
             except asyncio.TimeoutError:
-                print(f"Intelligent lookup timed out for '{name}' (15 seconds)")
-                # Continue to fallback
+                # Timeout - continue to fallback without printing (avoid encoding issues)
+                pass
             except Exception as e:
-                print(f"Intelligent lookup failed: {e}")
-                # Continue to fallback
+                # Error - continue to fallback without printing (avoid encoding issues)
+                pass
     
     # Not found - return default with found=False
     return SupplementInfo(

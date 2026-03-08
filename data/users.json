@@ -7,10 +7,10 @@
   "user_details": {
     "383087326": {
       "first_seen": "2026-03-02T11:29:17.040208+00:00",
-      "last_seen": "2026-03-02T11:29:17.040208+00:00",
-      "username": "irina_real",
+      "last_seen": "2026-03-08T13:32:33.959394+00:00",
+      "username": "irina_username",
       "first_name": "Irina",
-      "start_count": 1
+      "start_count": 3
     },
     "111111": {
       "first_seen": "2026-03-02T11:29:17.042366+00:00",
@@ -34,6 +34,12 @@
         383087326,
         111111,
         222222
+      ]
+    },
+    "2026-03-08": {
+      "new_users": 0,
+      "active_users": [
+        383087326
       ]
     }
   },

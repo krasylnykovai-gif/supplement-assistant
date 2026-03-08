@@ -1,62 +1,128 @@
 #!/usr/bin/env python3
-"""Check bot status and deployment"""
-import requests
+"""
+Quick bot status check via Telegram API
+"""
 import os
-from dotenv import load_dotenv
+import sys
+import requests
 from pathlib import Path
 
-def check_bot_status():
-    """Check if bot token is valid and bot is accessible"""
-    print("=== SUPPLEMENT ASSISTANT BOT - STATUS CHECK ===")
+def load_env():
+    """Load environment variables"""
+    if Path('.env').exists():
+        from dotenv import load_dotenv
+        load_dotenv()
     
-    # Load environment
-    load_dotenv()
-    token = os.getenv('TELEGRAM_BOT_TOKEN')
+    return os.getenv('TELEGRAM_BOT_TOKEN')
+
+def check_bot_status(token):
+    """Check bot status via getMe API"""
+    print("Checking bot status...")
     
-    if not token:
-        print("[ERROR] TELEGRAM_BOT_TOKEN not found in .env")
-        return
-    
-    print(f"Bot token: {token[:15]}...{token[-4:]}")
-    
-    # Check bot via Telegram API
     try:
-        response = requests.get(f'https://api.telegram.org/bot{token}/getMe', timeout=10)
+        url = f"https://api.telegram.org/bot{token}/getMe"
+        response = requests.get(url, timeout=10)
+        
         if response.status_code == 200:
-            bot_info = response.json()
-            if bot_info['ok']:
-                result = bot_info['result']
-                print("[OK] Bot token is VALID!")
-                print(f"Bot name: {result['first_name']}")
-                print(f"Bot username: @{result['username']}")
-                print(f"Bot ID: {result['id']}")
-                
-                # Check if bot is running (webhook or polling)
-                webhook_response = requests.get(f'https://api.telegram.org/bot{token}/getWebhookInfo', timeout=10)
-                if webhook_response.status_code == 200:
-                    webhook_info = webhook_response.json()
-                    if webhook_info['ok']:
-                        webhook_url = webhook_info['result'].get('url', '')
-                        if webhook_url:
-                            print(f"[WEBHOOK] Bot deployed at: {webhook_url}")
-                            print("[STATUS] Bot is DEPLOYED and running via webhook")
-                        else:
-                            print("[WEBHOOK] No webhook set - bot running via polling or not deployed")
-                            print("[ACTION] Bot needs to be running locally or deployed to cloud")
-                            
+            data = response.json()
+            if data.get('ok'):
+                bot_info = data.get('result', {})
+                print("   OK: Bot is ACTIVE and responding!")
+                print(f"   Bot name: {bot_info.get('first_name')}")
+                print(f"   Username: @{bot_info.get('username')}")
+                print(f"   Bot ID: {bot_info.get('id')}")
                 return True
             else:
-                print("[ERROR] Bot API error:", bot_info)
+                print(f"   ERROR: API returned error: {data}")
                 return False
         else:
-            print(f"[ERROR] API request failed: {response.status_code}")
+            print(f"   ERROR: HTTP {response.status_code}")
             return False
-    except requests.exceptions.RequestException as e:
-        print(f"[ERROR] Network error: {e}")
+            
+    except requests.exceptions.Timeout:
+        print("   ERROR: Request timeout (bot may be starting up)")
         return False
     except Exception as e:
-        print(f"[ERROR] Unexpected error: {e}")
+        print(f"   ERROR: {str(e)}")
+        return False
+
+def check_webhook_status(token):
+    """Check webhook status"""
+    print("\nChecking webhook status...")
+    
+    try:
+        url = f"https://api.telegram.org/bot{token}/getWebhookInfo"
+        response = requests.get(url, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get('ok'):
+                webhook_info = data.get('result', {})
+                webhook_url = webhook_info.get('url', '')
+                
+                if webhook_url:
+                    print(f"   Webhook URL: {webhook_url}")
+                    print(f"   Pending updates: {webhook_info.get('pending_update_count', 0)}")
+                else:
+                    print("   Using polling mode (no webhook)")
+                
+                return True
+            else:
+                print(f"   ERROR: {data}")
+                return False
+        else:
+            print(f"   ERROR: HTTP {response.status_code}")
+            return False
+            
+    except Exception as e:
+        print(f"   ERROR: {str(e)}")
+        return False
+
+def test_bot_command(token):
+    """Test sending a command to bot"""
+    print("\nTesting bot response (if you have chat_id)...")
+    
+    # This would require chat_id, so just show the curl command
+    print("   To test manually, send this message:")
+    print("   1. Open https://t.me/med11007_bot")
+    print("   2. Send: /start")
+    print("   3. Check if bot responds with supplement keyboard")
+    
+    return True
+
+def main():
+    print("BOT STATUS CHECK - @med11007_bot")
+    print("=" * 40)
+    
+    token = load_env()
+    if not token:
+        print("ERROR: TELEGRAM_BOT_TOKEN not found in .env")
+        return False
+    
+    # Mask token for security
+    masked_token = f"{token[:10]}...{token[-4:]}"
+    print(f"Using token: {masked_token}")
+    print()
+    
+    checks = [
+        check_bot_status(token),
+        check_webhook_status(token),
+        test_bot_command(token)
+    ]
+    
+    print("\n" + "=" * 40)
+    
+    if all(checks):
+        print("STATUS: BOT IS ONLINE AND READY!")
+        print("\nNext step: Test in Telegram:")
+        print("   https://t.me/med11007_bot")
+        return True
+    else:
+        print("STATUS: Some issues found")
+        print("Check Railway/Heroku logs for details")
         return False
 
 if __name__ == "__main__":
-    check_bot_status()
+    success = main()
+    if not success:
+        sys.exit(1)

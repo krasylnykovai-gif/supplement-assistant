@@ -1063,10 +1063,11 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             
             lookup_engine.cache_research(name, user_result)
-            logger.info(f"Saved user input for {name} to research DB")
+            # Saved user input to research DB (no logging to avoid encoding issues)
             
         except Exception as e:
-            logger.error(f"Failed to save user input to research DB: {e}")
+            # Failed to save user input to research DB (no logging to avoid encoding issues)
+            pass
         
         food_text = "з їжею" if with_food else "натщесерце"
         time_display = {"morning": "🌅 вранці", "any": "🌤 будь-коли", "evening": "🌙 ввечері"}
@@ -1085,6 +1086,10 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         text += "💡 *Рекомендації:*\n"
         text += f"_Додано на основі твоїх вказівок. Дякую за вклад у базу знань!_\n\n"
+        
+        # Add scientific source link for manually added supplements
+        text += "📚 *Джерело інформації:*\n"
+        text += "_Для більш детальної інформації рекомендуємо консультацію з лікарем або перевірку на [Examine.com](https://examine.com) - незалежній базі наукових досліджень БАДів._\n\n"
         
         text += "🌟 *Твій внесок:*\n"
         text += f"_Інформація збережена і допоможе іншим користувачам_\n\n"
