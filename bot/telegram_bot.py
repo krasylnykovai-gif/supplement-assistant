@@ -570,14 +570,14 @@ async def process_new_supplement(update: Update, context: ContextTypes.DEFAULT_T
         text += "🎯 *ЩО РОБИТИ ДАЛІ?*\n\n"
         
         if has_multiple:
-            text += "✨ У тебе вже є кілька БАДів! Можеш:\n"
-            text += "• 🔍 **Перевірити сумісність** всіх БАДів\n"
+            text += "У тебе вже є кілька БАДів! Можеш:\n"
+            text += "• **Перевірити сумісність** всіх БАДів\n"
             text += "• 📅 **Створити розклад** прийому\n"
-            text += "• ➕ **Додати ще БАДів**\n"
+            text += "• **Додати ще БАДів**\n"
             text += "• 📋 **Переглянути список** всіх БАДів"
         else:
             text += "💡 Це твій перший БАД! Рекомендую:\n"
-            text += "• ➕ **Додати ще БАДів** для комплексного підходу\n"
+            text += "• **Додати ще БАДів** для комплексного підходу\n"
             text += "• 📋 **Переглянути весь каталог** БАДів\n"
             text += "• 📚 **Дізнатися більше** про наукові джерела"
         
@@ -632,16 +632,16 @@ async def process_new_supplement(update: Update, context: ContextTypes.DEFAULT_T
             for suggestion in suggestions[:3]:  # Max 3 suggestions
                 suggestion_buttons.append([
                     InlineKeyboardButton(
-                        f"✨ {suggestion}", 
+                        f"» {suggestion}", 
                         callback_data=f"use_suggestion:{suggestion}"
                     )
                 ])
             
             suggestion_buttons.append([
-                InlineKeyboardButton("➕ Додати як новий", callback_data=f"start_add_manual:{name}")
+                InlineKeyboardButton("+ Додати як новий", callback_data=f"start_add_manual:{name}")
             ])
             suggestion_buttons.append([
-                InlineKeyboardButton("❌ Скасувати", callback_data="cancel_add")
+                InlineKeyboardButton("× Скасувати", callback_data="cancel_add")
             ])
             
             keyboard = InlineKeyboardMarkup(suggestion_buttons)
@@ -649,7 +649,7 @@ async def process_new_supplement(update: Update, context: ContextTypes.DEFAULT_T
         else:
             # No suggestions - ask user to add manually
             text = (
-                f"❌ *{name}*\n\n"
+                f"× *{name}*\n\n"
                 f"🤖 Автоматичний пошук не знайшов достатньо інформації.\n"
                 f"🌐 Перевірено: база даних + наукові джерела + розумний пошук\n\n"
                 f"💡 **Допоможи покращити систему:**\n"
@@ -1014,7 +1014,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         name = parts[1] if len(parts) > 1 else "БАД"
         
         await query.edit_message_text(
-            f"➕ *{name}*\n\nКоли краще приймати?",
+            f"+ *{name}*\n\nКоли краще приймати?",
             reply_markup=get_time_keyboard(name, with_food),
             parse_mode='Markdown'
         )
@@ -1094,14 +1094,14 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         text += "🎯 *ЩО РОБИТИ ДАЛІ?*\n\n"
         
         if has_multiple:
-            text += "✨ У тебе вже є кілька БАДів! Можеш:\n"
-            text += "• 🔍 **Перевірити сумісність** всіх БАДів\n"
+            text += "У тебе вже є кілька БАДів! Можеш:\n"
+            text += "• **Перевірити сумісність** всіх БАДів\n"
             text += "• 📅 **Створити розклад** прийому\n"
-            text += "• ➕ **Додати ще БАДів**\n"
+            text += "• **Додати ще БАДів**\n"
             text += "• 📋 **Переглянути список** всіх БАДів"
         else:
             text += "💡 Це твій перший БАД! Рекомендую:\n"
-            text += "• ➕ **Додати ще БАДів** для комплексного підходу\n"
+            text += "• **Додати ще БАДів** для комплексного підходу\n"
             text += "• 📋 **Переглянути весь каталог** БАДів\n"
             text += "• 📚 **Дізнатися більше** про наукові джерела"
         
