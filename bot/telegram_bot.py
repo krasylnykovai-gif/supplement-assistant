@@ -208,14 +208,14 @@ def get_supplement_keyboard(user_id: int) -> InlineKeyboardMarkup:
     
     # Action buttons
     buttons.append([
-        InlineKeyboardButton("➕ Додати БАД", callback_data="start_add")
+        InlineKeyboardButton("+ Додати БАД", callback_data="start_add")
     ])
     buttons.append([
-        InlineKeyboardButton("🔍 Перевірити сумісність", callback_data="check_compatibility"),
+        InlineKeyboardButton("Перевірити сумісність", callback_data="check_compatibility"),
         InlineKeyboardButton("📅 Побудувати план", callback_data="build_plan")
     ])
     buttons.append([
-        InlineKeyboardButton("🗑 Очистити вибір", callback_data="clear_selection")
+        InlineKeyboardButton("× Очистити вибір", callback_data="clear_selection")
     ])
     buttons.append([
         InlineKeyboardButton("📚 Наші джерела", callback_data="show_sources")
@@ -239,14 +239,14 @@ def get_meal_keyboard() -> InlineKeyboardMarkup:
 def get_after_add_keyboard(has_multiple_supplements: bool = False) -> InlineKeyboardMarkup:
     """Keyboard shown after adding a supplement with logical next steps"""
     buttons = [
-        [InlineKeyboardButton("➕ Додати ще один БАД", callback_data="start_add")]
+        [InlineKeyboardButton("+ Додати ще один БАД", callback_data="start_add")]
     ]
     
     # Show plan/schedule options if user has supplements
     if has_multiple_supplements:
         buttons.append([
             InlineKeyboardButton("📅 Побудувати план прийому", callback_data="build_plan"),
-            InlineKeyboardButton("🔍 Перевірити сумісність", callback_data="check_compatibility")
+            InlineKeyboardButton("Перевірити сумісність", callback_data="check_compatibility")
         ])
         buttons.append([
             InlineKeyboardButton("⏰ Налаштувати розклад", callback_data="setup_meal_times")
@@ -257,7 +257,7 @@ def get_after_add_keyboard(has_multiple_supplements: bool = False) -> InlineKeyb
         InlineKeyboardButton("📚 Джерела", callback_data="show_sources")
     ])
     buttons.append([
-        InlineKeyboardButton("ℹ️ Допомога", callback_data="show_help")
+        InlineKeyboardButton("Допомога", callback_data="show_help")
     ])
     
     return InlineKeyboardMarkup(buttons)
@@ -268,18 +268,18 @@ def get_enhanced_after_add_keyboard(has_multiple_supplements: bool = False) -> I
     if has_multiple_supplements:
         # User has multiple supplements - prioritize plan creation
         buttons = [
-            [InlineKeyboardButton("🔍 Перевірити сумісність БАДів", callback_data="check_compatibility")],
+            [InlineKeyboardButton("Перевірити сумісність БАДів", callback_data="check_compatibility")],
             [InlineKeyboardButton("📅 Створити план прийому", callback_data="build_plan")],
-            [InlineKeyboardButton("➕ Додати ще один БАД", callback_data="start_add")],
+            [InlineKeyboardButton("+ Додати ще один БАД", callback_data="start_add")],
             [InlineKeyboardButton("📋 Переглянути всі мої БАДи", callback_data="back_to_selection")]
         ]
     else:
         # First supplement - encourage adding more
         buttons = [
-            [InlineKeyboardButton("➕ Додати ще БАДів", callback_data="start_add")],
+            [InlineKeyboardButton("+ Додати ще БАДів", callback_data="start_add")],
             [InlineKeyboardButton("📋 Переглянути каталог БАДів", callback_data="back_to_selection")],
             [InlineKeyboardButton("📚 Наукові джерела", callback_data="show_sources")],
-            [InlineKeyboardButton("ℹ️ Як користуватися ботом", callback_data="show_help")]
+            [InlineKeyboardButton("Як користуватися ботом", callback_data="show_help")]
         ]
     
     return InlineKeyboardMarkup(buttons)
@@ -292,7 +292,7 @@ def get_not_found_keyboard(name: str) -> InlineKeyboardMarkup:
             InlineKeyboardButton("🍽 З їжею", callback_data=f"manual_food_yes:{name}"),
             InlineKeyboardButton("⏰ Натщесерце", callback_data=f"manual_food_no:{name}")
         ],
-        [InlineKeyboardButton("❌ Скасувати", callback_data="cancel_add")]
+        [InlineKeyboardButton("× Скасувати", callback_data="cancel_add")]
     ]
     return InlineKeyboardMarkup(buttons)
 
@@ -306,7 +306,7 @@ def get_time_keyboard(name: str, with_food: bool) -> InlineKeyboardMarkup:
             InlineKeyboardButton("🌤 Будь-коли", callback_data=f"manual_time_any:{name}:{food_flag}"),
             InlineKeyboardButton("🌙 Вечір", callback_data=f"manual_time_evening:{name}:{food_flag}")
         ],
-        [InlineKeyboardButton("❌ Скасувати", callback_data="cancel_add")]
+        [InlineKeyboardButton("× Скасувати", callback_data="cancel_add")]
     ]
     return InlineKeyboardMarkup(buttons)
 
