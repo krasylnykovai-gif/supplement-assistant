@@ -392,6 +392,23 @@ def get_meal_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(buttons)
 
 
+def get_full_plan_keyboard() -> InlineKeyboardMarkup:
+    """Keyboard shown after full plan — with reminder CTA and flexible meal triggers"""
+    buttons = [
+        # Primary CTA — reminder setup
+        [InlineKeyboardButton("🔔 Налаштувати нагадування", callback_data="setup_meal_times")],
+        # Flexible timing: user marks when they actually ate
+        [
+            InlineKeyboardButton("🍳 Поснідав зараз", callback_data="ate_now_breakfast"),
+            InlineKeyboardButton("🍽 Пообідав зараз", callback_data="ate_now_lunch"),
+        ],
+        [InlineKeyboardButton("🌙 Повечеряв зараз", callback_data="ate_now_dinner")],
+        # Navigation
+        [InlineKeyboardButton("◀️ Назад до вибору", callback_data="back_to_selection")]
+    ]
+    return InlineKeyboardMarkup(buttons)
+
+
 def get_after_add_keyboard(has_multiple_supplements: bool = False) -> InlineKeyboardMarkup:
     """Keyboard shown after adding a supplement with logical next steps"""
     buttons = [
@@ -1409,10 +1426,17 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     notes=slot.notes
                 )
         
+        # Show full plan immediately + reminder CTA
+        planner2 = MealPlanner(catalog, report.constraints)
+        formatted = planner2.format_plan(plans)
+        formatted += "\n\n━━━━━━━━━━━━━━━━━━━━━━\n"
+        formatted += "🔔 *Хочеш отримувати нагадування щодня?*\n"
+        formatted += "_Натисни кнопку нижче — налаштуй час їжі і бот буде нагадувати автоматично_\n\n"
+        formatted += "🍽 *Їси в різний час?* Просто натисни \"Поснідав зараз\" — і бот одразу покаже що приймати!"
+
         await query.edit_message_text(
-            "✅ План готовий! Обери прійом їжі:\n\n"
-            "_💡 Нагадування автоматично створені. Налашуй час через /schedule_",
-            reply_markup=get_meal_keyboard(),
+            formatted,
+            reply_markup=get_full_plan_keyboard(),
             parse_mode='Markdown'
         )
         return
@@ -1456,10 +1480,14 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         catalog = normalizer.get_all_supplements()
         planner = MealPlanner(catalog)
         formatted = planner.format_plan(plans)
-        
+        formatted += "\n\n━━━━━━━━━━━━━━━━━━━━━━\n"
+        formatted += "🔔 *Хочеш отримувати нагадування щодня?*\n"
+        formatted += "_Налаштуй час їжі — і бот буде нагадувати автоматично_\n\n"
+        formatted += "🍽 *Їси в різний час?* Просто натисни \"Поснідав зараз\"!"
+
         await query.edit_message_text(
             formatted,
-            reply_markup=get_meal_keyboard(),
+            reply_markup=get_full_plan_keyboard(),
             parse_mode='Markdown'
         )
         return
@@ -1493,6 +1521,58 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
     
+    # === FLEXIBLE MEAL TRIGGER ("Поснідав зараз") ===
+    if data.startswith("ate_now_"):
+        meal_key = data.replace("ate_now_", "")  # breakfast / lunch / dinner
+        meal_names_uk = {"breakfast": "сніданку", "lunch": "обіду", "dinner": "вечері"}
+        meal_emojis = {"breakfast": "🌅", "lunch": "🍽", "dinner": "🌙"}
+        meal_display = meal_names_uk.get(meal_key, meal_key)
+        emoji = meal_emojis.get(meal_key, "💊")
+
+        # Find supplements for this meal from user's plan
+        if user_id not in user_plans:
+            await query.edit_message_text(
+                "⚠️ Спочатку побудуй план через /start",
+                reply_markup=get_supplement_keyboard(user_id)
+            )
+            return
+
+        plans = user_plans[user_id]
+        catalog = normalizer.get_all_supplements()
+
+        # Map string key to MealTime enum
+        meal_enum_map = {"breakfast": MealTime.BREAKFAST, "lunch": MealTime.LUNCH, "dinner": MealTime.DINNER}
+        meal_enum = meal_enum_map.get(meal_key)
+        meal_plan = plans.get(meal_enum)
+
+        if not meal_plan:
+            await query.answer(f"Немає плану для {meal_display}", show_alert=True)
+            return
+
+        all_slots = meal_plan.before + meal_plan.with_meal + meal_plan.after
+        if not all_slots:
+            await query.answer(f"Для {meal_display} БАДів не передбачено", show_alert=True)
+            return
+
+        text = f"{emoji} *Зараз після {meal_display} прийми:*\n\n"
+        for slot in all_slots:
+            supp_name = catalog.get(slot.supplement_id, {}).get('name', slot.supplement_id)
+            food_icon = "🍽" if slot.timing == "with_meal" else ("⏳" if slot.timing == "before" else "✅")
+            note = f"\n   _{slot.notes}_" if slot.notes else ""
+            text += f"{food_icon} *{supp_name}*{note}\n"
+
+        text += "\n_Відмітиш коли прийняв?_"
+
+        keyboard = InlineKeyboardMarkup([[
+            InlineKeyboardButton("✅ Прийняв", callback_data=f"checkin_yes_{meal_key}"),
+            InlineKeyboardButton("⏭ Пропустив", callback_data=f"checkin_no_{meal_key}")
+        ], [
+            InlineKeyboardButton("◀️ До плану", callback_data="full_plan")
+        ]])
+
+        await query.edit_message_text(text, reply_markup=keyboard, parse_mode='Markdown')
+        return
+
     # === SCHEDULE MANAGEMENT ===
     if data == "setup_meal_times":
         await query.edit_message_text(
