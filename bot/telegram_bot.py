@@ -7,7 +7,7 @@ import json
 import logging
 import asyncio
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime, timezone, time, timedelta
 from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
@@ -76,7 +76,6 @@ def save_streaks(data: dict):
 
 def update_streak(user_id: int, taken: bool) -> dict:
     """Record today's check-in and update streak. Returns updated user streak dict."""
-    from datetime import timedelta
     data = load_streaks()
     uid = str(user_id)
     today = datetime.now().date().isoformat()
@@ -1267,7 +1266,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Also save to intelligent research DB for future users
         try:
             from core.intelligent_lookup import IntelligentLookup, ResearchResult
-            from datetime import datetime
             
             data_dir = Path(__file__).parent.parent / "data"
             lookup_engine = IntelligentLookup(data_dir)
