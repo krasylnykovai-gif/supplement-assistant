@@ -1,76 +1,90 @@
 {
-  "version": "1.0.0",
-  "last_updated": "2026-02-17",
+  "version": "1.1.0",
+  "last_updated": "2026-03-09",
   "interaction_types": {
     "synergy": "✅ Синергія — підсилюють дію один одного",
-    "separate": "⚠️ Рознести — приймати з інтервалом",
-    "avoid": "⛔ Уникати — не поєднувати"
+    "separate": "⚠️ Рознести — один знижує засвоєння іншого",
+    "avoid": "⛔ Не поєднувати — суттєво гасять ефект один одного"
   },
   "interactions": [
     {
       "pair": ["iron", "calcium"],
       "type": "separate",
-      "interval_hours": 2,
-      "reason": "Кальцій знижує засвоєння заліза на 50-60%",
+      "interval_hours": 4,
+      "reason": "Кальцій блокує засвоєння заліза на 50-60%. Мінімум 4 год між ними. Залізо краще натщесерце",
       "source": "https://pubmed.ncbi.nlm.nih.gov/2507689/"
     },
     {
       "pair": ["iron", "zinc"],
       "type": "separate",
       "interval_hours": 2,
-      "reason": "Конкурують за одні транспортери в кишечнику",
+      "reason": "Конкурують за одні кишкові транспортери (DMT-1) — разом засвоюється менше обох",
       "source": "https://pubmed.ncbi.nlm.nih.gov/12644045/"
     },
     {
       "pair": ["iron", "vitamin_c"],
       "type": "synergy",
-      "reason": "Вітамін C підвищує засвоєння заліза в 2-3 рази",
+      "reason": "Вітамін C підвищує засвоєння заліза в 2-3 рази — обов'язково приймай разом",
       "source": "https://pubmed.ncbi.nlm.nih.gov/2507689/"
     },
     {
       "pair": ["vitamin_d", "calcium"],
       "type": "synergy",
-      "reason": "Вітамін D необхідний для засвоєння кальцію",
+      "reason": "Вітамін D необхідний для засвоєння кальцію — без нього кальцій засвоюється погано",
       "source": "https://ods.od.nih.gov/factsheets/VitaminD-HealthProfessional/"
     },
     {
       "pair": ["vitamin_d", "magnesium"],
       "type": "synergy",
-      "reason": "Магній необхідний для активації вітаміну D",
+      "reason": "Магній активує вітамін D. Без магнію вітамін D практично не працює",
       "source": "https://pubmed.ncbi.nlm.nih.gov/29480918/"
     },
     {
       "pair": ["calcium", "magnesium"],
       "type": "separate",
       "interval_hours": 2,
-      "reason": "Конкурують за засвоєння при високих дозах",
+      "reason": "Конкурують за засвоєння — при одночасному прийомі ефективність обох знижується",
       "source": "https://pubmed.ncbi.nlm.nih.gov/8463386/"
     },
     {
       "pair": ["zinc", "calcium"],
       "type": "separate",
       "interval_hours": 2,
-      "reason": "Кальцій може знижувати засвоєння цинку",
+      "reason": "Кальцій знижує засвоєння цинку",
       "source": "https://pubmed.ncbi.nlm.nih.gov/9701160/"
+    },
+    {
+      "pair": ["magnesium", "zinc"],
+      "type": "separate",
+      "interval_hours": 2,
+      "reason": "Конкурують за одні кишкові транспортери — разом засвоюється менше обох",
+      "source": "https://pubmed.ncbi.nlm.nih.gov/8302487/"
     },
     {
       "pair": ["psyllium", "any"],
       "type": "separate",
       "interval_hours": 2,
-      "reason": "Псиліум може зв'язувати інші добавки та знижувати їх засвоєння",
+      "reason": "Псиліум фізично зв'язує інші добавки в кишечнику і виводить їх — приймай за 2 год до/після решти",
       "source": "https://www.ncbi.nlm.nih.gov/books/NBK532937/"
     },
     {
       "pair": ["berberine", "vitamin_b12"],
+      "type": "avoid",
+      "interval_hours": 0,
+      "reason": "Берберин пригнічує транспортери B12 (PCFT/OCTN1). При тривалому прийомі — знижує рівень B12 в організмі. Якщо приймаєш обидва — регулярно перевіряй B12 в крові",
+      "source": "https://pubmed.ncbi.nlm.nih.gov/31055709/"
+    },
+    {
+      "pair": ["berberine", "iron"],
       "type": "separate",
-      "interval_hours": 4,
-      "reason": "Берберин може знижувати засвоєння B12",
-      "source": "https://examine.com/supplements/berberine/"
+      "interval_hours": 2,
+      "reason": "Поліфеноли берберину хелатують (зв'язують) залізо і знижують його засвоєння",
+      "source": "https://pubmed.ncbi.nlm.nih.gov/10720176/"
     },
     {
       "pair": ["collagen", "vitamin_c"],
       "type": "synergy",
-      "reason": "Вітамін C необхідний для синтезу колагену",
+      "reason": "Вітамін C необхідний для синтезу колагену — без нього колаген не засвоюється повноцінно",
       "source": "https://pubmed.ncbi.nlm.nih.gov/28786550/"
     },
     {
@@ -83,8 +97,15 @@
       "pair": ["artichoke", "iron"],
       "type": "separate",
       "interval_hours": 2,
-      "reason": "Поліфеноли артишоку можуть знижувати засвоєння заліза",
+      "reason": "Поліфеноли артишоку хелатують залізо і знижують його засвоєння",
       "source": "https://pubmed.ncbi.nlm.nih.gov/10720176/"
+    },
+    {
+      "pair": ["zinc", "vitamin_b12"],
+      "type": "separate",
+      "interval_hours": 2,
+      "reason": "Цинк у великих дозах може знижувати засвоєння B12",
+      "source": "https://pubmed.ncbi.nlm.nih.gov/16702317/"
     }
   ]
 }

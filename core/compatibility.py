@@ -115,17 +115,18 @@ class CompatibilityChecker:
         """Format compatibility report for Telegram"""
         lines = ["📋 *Звіт сумісності*\n"]
         
-        if report.synergies:
-            lines.append("✅ *Синергія (підсилюють одне одного):*")
-            for s in report.synergies:
-                name1 = catalog.get(s.supplements[0], {}).get('name', s.supplements[0])
-                name2 = catalog.get(s.supplements[1], {}).get('name', s.supplements[1])
-                lines.append(f"• {name1} + {name2}")
-                lines.append(f"  _{s.reason}_")
+        # ⛔ Avoid first — most critical
+        if report.warnings:
+            lines.append("⛔ *ГАСЯТЬ ЕФЕКТ ОДИН ОДНОГО:*")
+            for w in report.warnings:
+                name1 = catalog.get(w.supplements[0], {}).get('name', w.supplements[0])
+                name2 = catalog.get(w.supplements[1], {}).get('name', w.supplements[1])
+                lines.append(f"• *{name1}* + *{name2}*")
+                lines.append(f"  _{w.reason}_")
             lines.append("")
-        
+
         if report.separations:
-            lines.append("⚠️ *Рознести в часі:*")
+            lines.append("⚠️ *Знижують засвоєння — рознести в часі:*")
             for s in report.separations:
                 name1 = catalog.get(s.supplements[0], {}).get('name', s.supplements[0])
                 name2 = catalog.get(s.supplements[1], {}).get('name', s.supplements[1])
@@ -133,17 +134,19 @@ class CompatibilityChecker:
                 lines.append(f"  _{s.reason}_")
             lines.append("")
         
-        if report.warnings:
-            lines.append("⛔ *Потребує уваги:*")
-            for w in report.warnings:
-                name1 = catalog.get(w.supplements[0], {}).get('name', w.supplements[0])
-                name2 = catalog.get(w.supplements[1], {}).get('name', w.supplements[1])
+        if report.synergies:
+            lines.append("✅ *Синергія — підсилюють одне одного:*")
+            for s in report.synergies:
+                name1 = catalog.get(s.supplements[0], {}).get('name', s.supplements[0])
+                name2 = catalog.get(s.supplements[1], {}).get('name', s.supplements[1])
                 lines.append(f"• {name1} + {name2}")
-                lines.append(f"  _{w.reason}_")
+                lines.append(f"  _{s.reason}_")
             lines.append("")
         
         if not report.synergies and not report.separations and not report.warnings:
             lines.append("✅ Обрані добавки не мають відомих взаємодій між собою.")
+        
+        lines.append("_⚠️ Інформація базується на наукових дослідженнях. При серйозних питаннях — консультуйся з лікарем._")
         
         return "\n".join(lines)
 
