@@ -268,6 +268,7 @@
         "коензим q10"
       ],
       "category": "custom",
+      "user_added": true,
       "timing": {
         "with_food": true,
         "fat_required": true,
@@ -283,6 +284,7 @@
         "цитиколин"
       ],
       "category": "custom",
+      "user_added": true,
       "timing": {
         "with_food": true,
         "fat_required": false,
@@ -298,6 +300,7 @@
         "меланотан"
       ],
       "category": "custom",
+      "user_added": true,
       "timing": {
         "with_food": true,
         "fat_required": false,
@@ -313,6 +316,7 @@
         "никотинамид моноуклеотид"
       ],
       "category": "custom",
+      "user_added": true,
       "timing": {
         "with_food": true,
         "fat_required": false,
@@ -328,6 +332,7 @@
         "гиперзин"
       ],
       "category": "custom",
+      "user_added": true,
       "timing": {
         "with_food": true,
         "fat_required": false,
@@ -343,6 +348,7 @@
         "кверцитин"
       ],
       "category": "custom",
+      "user_added": true,
       "timing": {
         "with_food": true,
         "fat_required": false,
@@ -350,51 +356,6 @@
         "notes": "Unknown supplement. Safe recommendation: take with food to reduce stomach upset. (Based on supplement category analysis)"
       },
       "source": "pattern_analysis"
-    },
-    "test_supplement": {
-      "id": "test_supplement",
-      "name": "Test Supplement",
-      "aliases": [
-        "test supplement"
-      ],
-      "category": "custom",
-      "timing": {
-        "with_food": true,
-        "fat_required": false,
-        "best_time": "morning",
-        "notes": "Test notes"
-      },
-      "source": "test_source"
-    },
-    "test_mag": {
-      "id": "test_mag",
-      "name": "Test Magnesium",
-      "aliases": [
-        "test magnesium"
-      ],
-      "category": "custom",
-      "timing": {
-        "with_food": true,
-        "fat_required": false,
-        "best_time": "evening",
-        "notes": "Test notes"
-      },
-      "source": "test_source"
-    },
-    "test_fix": {
-      "id": "test_fix",
-      "name": "Test Fix Supplement",
-      "aliases": [
-        "test fix supplement"
-      ],
-      "category": "custom",
-      "timing": {
-        "with_food": true,
-        "fat_required": false,
-        "best_time": "morning",
-        "notes": "Test"
-      },
-      "source": "test"
     }
   }
 }

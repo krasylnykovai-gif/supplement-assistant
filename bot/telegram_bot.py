@@ -1,4 +1,4 @@
-"""
+﻿"""
 Telegram Bot for Supplement Assistant
 Event-driven: user selects supplements → compatibility check → meal-based plan
 """
@@ -169,6 +169,7 @@ def save_supplement(supp_id: str, name: str, with_food: bool, fat_required: bool
         "name": name,
         "aliases": [name.lower()],
         "category": "custom",
+        "user_added": True,
         "timing": {
             "with_food": with_food,
             "fat_required": fat_required,
@@ -193,6 +194,9 @@ def get_supplement_keyboard(user_id: int) -> InlineKeyboardMarkup:
     row = []
     
     for supp_id, supp_data in supplements.items():
+        # Show only base supplements in main menu (not user-added)
+        if supp_data.get('user_added', False):
+            continue
         mark = "✅ " if supp_id in selected else ""
         btn = InlineKeyboardButton(
             f"{mark}{supp_data['name']}", 
@@ -239,25 +243,25 @@ def get_meal_keyboard() -> InlineKeyboardMarkup:
 def get_after_add_keyboard(has_multiple_supplements: bool = False) -> InlineKeyboardMarkup:
     """Keyboard shown after adding a supplement with logical next steps"""
     buttons = [
-        [InlineKeyboardButton("+ Додати ще один БАД", callback_data="start_add")]
+        [InlineKeyboardButton("+ Add another supplement", callback_data="start_add")]
     ]
     
     # Show plan/schedule options if user has supplements
     if has_multiple_supplements:
         buttons.append([
-            InlineKeyboardButton("📅 Побудувати план прийому", callback_data="build_plan"),
-            InlineKeyboardButton("Перевірити сумісність", callback_data="check_compatibility")
+            InlineKeyboardButton("Build plan", callback_data="build_plan"),
+            InlineKeyboardButton("Check compatibility", callback_data="check_compatibility")
         ])
         buttons.append([
-            InlineKeyboardButton("⏰ Налаштувати розклад", callback_data="setup_meal_times")
+            InlineKeyboardButton("Setup schedule", callback_data="setup_meal_times")
         ])
     
     buttons.append([
-        InlineKeyboardButton("📋 Всі мої БАДи", callback_data="back_to_selection"),
-        InlineKeyboardButton("📚 Джерела", callback_data="show_sources")
+        InlineKeyboardButton("All my supplements", callback_data="back_to_selection"),
+        InlineKeyboardButton("Sources", callback_data="show_sources")
     ])
     buttons.append([
-        InlineKeyboardButton("Допомога", callback_data="show_help")
+        InlineKeyboardButton("Help", callback_data="show_help")
     ])
     
     return InlineKeyboardMarkup(buttons)
@@ -268,18 +272,18 @@ def get_enhanced_after_add_keyboard(has_multiple_supplements: bool = False) -> I
     if has_multiple_supplements:
         # User has multiple supplements - prioritize plan creation
         buttons = [
-            [InlineKeyboardButton("Перевірити сумісність БАДів", callback_data="check_compatibility")],
-            [InlineKeyboardButton("📅 Створити план прийому", callback_data="build_plan")],
-            [InlineKeyboardButton("+ Додати ще один БАД", callback_data="start_add")],
-            [InlineKeyboardButton("📋 Переглянути всі мої БАДи", callback_data="back_to_selection")]
+            [InlineKeyboardButton("Compatibility check", callback_data="check_compatibility")],
+            [InlineKeyboardButton("Create plan", callback_data="build_plan")],
+            [InlineKeyboardButton("+ Add another", callback_data="start_add")],
+            [InlineKeyboardButton("View all my supplements", callback_data="back_to_selection")]
         ]
     else:
         # First supplement - encourage adding more
         buttons = [
-            [InlineKeyboardButton("+ Додати ще БАДів", callback_data="start_add")],
-            [InlineKeyboardButton("📋 Переглянути каталог БАДів", callback_data="back_to_selection")],
-            [InlineKeyboardButton("📚 Наукові джерела", callback_data="show_sources")],
-            [InlineKeyboardButton("Як користуватися ботом", callback_data="show_help")]
+            [InlineKeyboardButton("+ Add more supplements", callback_data="start_add")],
+            [InlineKeyboardButton("View supplement catalog", callback_data="back_to_selection")],
+            [InlineKeyboardButton("Scientific sources", callback_data="show_sources")],
+            [InlineKeyboardButton("How to use this bot", callback_data="show_help")]
         ]
     
     return InlineKeyboardMarkup(buttons)
@@ -289,10 +293,10 @@ def get_not_found_keyboard(name: str) -> InlineKeyboardMarkup:
     """Keyboard when supplement info not found - ask user"""
     buttons = [
         [
-            InlineKeyboardButton("🍽 З їжею", callback_data=f"manual_food_yes:{name}"),
-            InlineKeyboardButton("⏰ Натщесерце", callback_data=f"manual_food_no:{name}")
+            InlineKeyboardButton("With food", callback_data=f"manual_food_yes:{name}"),
+            InlineKeyboardButton("Empty stomach", callback_data=f"manual_food_no:{name}")
         ],
-        [InlineKeyboardButton("× Скасувати", callback_data="cancel_add")]
+        [InlineKeyboardButton("x Cancel", callback_data="cancel_add")]
     ]
     return InlineKeyboardMarkup(buttons)
 
@@ -302,11 +306,11 @@ def get_time_keyboard(name: str, with_food: bool) -> InlineKeyboardMarkup:
     food_flag = "yes" if with_food else "no"
     buttons = [
         [
-            InlineKeyboardButton("🌅 Ранок", callback_data=f"manual_time_morning:{name}:{food_flag}"),
-            InlineKeyboardButton("🌤 Будь-коли", callback_data=f"manual_time_any:{name}:{food_flag}"),
-            InlineKeyboardButton("🌙 Вечір", callback_data=f"manual_time_evening:{name}:{food_flag}")
+            InlineKeyboardButton("Morning", callback_data=f"manual_time_morning:{name}:{food_flag}"),
+            InlineKeyboardButton("Any time", callback_data=f"manual_time_any:{name}:{food_flag}"),
+            InlineKeyboardButton("Evening", callback_data=f"manual_time_evening:{name}:{food_flag}")
         ],
-        [InlineKeyboardButton("× Скасувати", callback_data="cancel_add")]
+        [InlineKeyboardButton("x Cancel", callback_data="cancel_add")]
     ]
     return InlineKeyboardMarkup(buttons)
 
@@ -329,7 +333,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 🏛️ *Наукова база:*
 • Harvard Health • NIH (США) • Mayo Clinic
-• PubMed • Examine.com • Рецензовані дослідження
+• PubMed • WebMD • Рецензовані дослідження
 
 📝 *Як користуватись:*
 1. Обери БАДи, які приймаєш ⬇️
@@ -544,10 +548,10 @@ async def process_new_supplement(update: Update, context: ContextTypes.DEFAULT_T
         text += "💡 *Рекомендації:*\n"
         text += f"_{info.notes}_\n\n"
         
-        # Add source with clickable link if available
-        if info.source and info.source.startswith('http'):
+        # Add source with clickable link if available (skip paid resources like examine.com)
+        if info.source and info.source.startswith('http') and 'examine.com' not in info.source:
             text += f"📚 *Наукове джерело:* [Детальна інформація]({info.source})\n\n"
-        elif info.source:
+        elif info.source and not info.source.startswith('http') and info.source not in ('pattern_analysis', 'user_manual'):
             text += f"📚 *Джерело:* {info.source}\n\n"
         
         # Add confidence indicator if available
@@ -775,7 +779,7 @@ async def sources_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 • [WebMD](https://webmd.com/) - Медичні довідники
 
 🔬 **Наукові дослідницькі платформи:**
-• [Examine.com](https://examine.com/) - Незалежні огляди наукових досліджень БАДів
+• [MedlinePlus](https://medlineplus.gov/druginformation.html) - Безкоштовна база NIH для пацієнтів
 • [Healthline](https://healthline.com/) - Медичний контент на основі доказів
 
 📊 **Принципи роботи:**
@@ -1087,9 +1091,9 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         text += "💡 *Рекомендації:*\n"
         text += f"_Додано на основі твоїх вказівок. Дякую за вклад у базу знань!_\n\n"
         
-        # Add scientific source link for manually added supplements
+        # Add note for manually added supplements
         text += "📚 *Джерело інформації:*\n"
-        text += "_Для більш детальної інформації рекомендуємо консультацію з лікарем або перевірку на [Examine.com](https://examine.com) - незалежній базі наукових досліджень БАДів._\n\n"
+        text += "_Додано на основі вказівок користувача. Для деталей зверніться до лікаря або перевірте на [NIH Supplements](https://ods.od.nih.gov/factsheets/list-all/) — безкоштовна наукова база._\n\n"
         
         text += "🌟 *Твій внесок:*\n"
         text += f"_Інформація збережена і допоможе іншим користувачам_\n\n"
@@ -1441,7 +1445,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 • [WebMD](https://webmd.com/) - Медичні довідники
 
 🔬 **Наукові дослідницькі платформи:**
-• [Examine.com](https://examine.com/) - Незалежні огляди наукових досліджень БАДів
+• [MedlinePlus](https://medlineplus.gov/druginformation.html) - Безкоштовна база NIH для пацієнтів
 • [Healthline](https://healthline.com/) - Медичний контент на основі доказів
 
 ⚗️ **Рівні довіри:**
@@ -1665,3 +1669,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
