@@ -36,6 +36,7 @@ from core.meal_scheduler import MealScheduler, SupplementReminder
 
 # Paths
 CATALOG_PATH = Path(__file__).parent.parent / "data" / "supplement_catalog.json"
+STREAKS_PATH = Path(__file__).parent.parent / "data" / "streaks.json"
 
 # Initialize components
 normalizer = SupplementNormalizer()
@@ -47,6 +48,144 @@ user_selections = {}  # user_id -> set of supplement_ids
 user_plans = {}       # user_id -> generated plan
 user_adding = {}      # user_id -> True if in adding mode
 user_setting_time = {}  # user_id -> meal_name for time setting flow
+
+# Reminder dedup: track sent today "userid_meal_date"
+sent_reminders_today: set = set()
+
+
+# ─── STREAK SYSTEM ────────────────────────────────────────────────────────────
+
+def load_streaks() -> dict:
+    if STREAKS_PATH.exists():
+        try:
+            with open(STREAKS_PATH, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {}
+
+
+def save_streaks(data: dict):
+    try:
+        STREAKS_PATH.parent.mkdir(exist_ok=True)
+        with open(STREAKS_PATH, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        logger.error(f"Error saving streaks: {e}")
+
+
+def update_streak(user_id: int, taken: bool) -> dict:
+    """Record today's check-in and update streak. Returns updated user streak dict."""
+    from datetime import timedelta
+    data = load_streaks()
+    uid = str(user_id)
+    today = datetime.now().date().isoformat()
+    yesterday = (datetime.now().date() - timedelta(days=1)).isoformat()
+
+    if uid not in data:
+        data[uid] = {
+            "current_streak": 0,
+            "longest_streak": 0,
+            "last_date": None,
+            "total_taken": 0,
+            "total_skipped": 0,
+            "history": {}
+        }
+
+    user = data[uid]
+
+    # Avoid double check-in on same day
+    if user["history"].get(today):
+        return user
+
+    user["history"][today] = "taken" if taken else "skipped"
+    user["last_date"] = today
+
+    if taken:
+        user["total_taken"] = user.get("total_taken", 0) + 1
+        # Continue streak if yesterday was also taken; otherwise start at 1
+        if user["history"].get(yesterday) == "taken":
+            user["current_streak"] = user.get("current_streak", 0) + 1
+        else:
+            user["current_streak"] = 1
+        user["longest_streak"] = max(user.get("longest_streak", 0), user["current_streak"])
+    else:
+        user["total_skipped"] = user.get("total_skipped", 0) + 1
+        user["current_streak"] = 0
+
+    data[uid] = user
+    save_streaks(data)
+    return user
+
+
+# ─── REMINDER JOB ─────────────────────────────────────────────────────────────
+
+async def check_and_send_reminders(context) -> None:
+    """JobQueue task: runs every 5 min, sends due reminders with check-in buttons."""
+    global sent_reminders_today
+    now = datetime.now()
+    today = now.date().isoformat()
+
+    # Reset dedup set at midnight
+    if now.hour == 0 and now.minute < 6:
+        sent_reminders_today = set()
+
+    user_ids = list(scheduler.schedules.keys())
+
+    for user_id in user_ids:
+        try:
+            # get reminders due in the next ~6 minutes (0.1 hours)
+            upcoming = scheduler.get_next_reminders(int(user_id), hours_ahead=0.1)
+            if not upcoming:
+                continue
+
+            meal_groups: dict = {}
+            for reminder_time, reminder, meal_time_obj in upcoming:
+                meal = reminder.meal
+                key = f"{user_id}_{meal}_{today}"
+                if key in sent_reminders_today:
+                    continue
+                if meal not in meal_groups:
+                    meal_groups[meal] = []
+                meal_groups[meal].append(reminder)
+
+            for meal, reminders in meal_groups.items():
+                key = f"{user_id}_{meal}_{today}"
+                sent_reminders_today.add(key)
+
+                meal_emojis = {"breakfast": "🌅", "lunch": "🍽", "dinner": "🌙"}
+                meal_names_uk = {"breakfast": "сніданку", "lunch": "обіду", "dinner": "вечері"}
+
+                emoji = meal_emojis.get(meal, "💊")
+                meal_display = meal_names_uk.get(meal, meal)
+
+                # Check current streak
+                streaks = load_streaks()
+                streak_info = streaks.get(str(user_id), {})
+                current_streak = streak_info.get("current_streak", 0)
+                streak_line = f"\n🔥 Стрік: *{current_streak} дн.* — не переривай!" if current_streak > 0 else ""
+
+                text = f"{emoji} *Час БАДів до {meal_display}!*\n\n"
+                for rem in reminders:
+                    notes_line = f"\n   _{rem.notes}_" if rem.notes else ""
+                    text += f"💊 {rem.supplement_name}{notes_line}\n"
+                text += f"{streak_line}\n"
+
+                keyboard = InlineKeyboardMarkup([[
+                    InlineKeyboardButton("✅ Прийняв", callback_data=f"checkin_yes_{meal}"),
+                    InlineKeyboardButton("⏭ Пропустив", callback_data=f"checkin_no_{meal}")
+                ]])
+
+                await context.bot.send_message(
+                    chat_id=int(user_id),
+                    text=text,
+                    reply_markup=keyboard,
+                    parse_mode='Markdown'
+                )
+                logger.info(f"Reminder sent → user {user_id}, meal {meal}")
+
+        except Exception as e:
+            logger.error(f"Reminder error for user {user_id}: {e}")
 
 # User analytics
 USERS_DATA_PATH = Path(__file__).parent.parent / "data" / "users.json"
@@ -243,25 +382,25 @@ def get_meal_keyboard() -> InlineKeyboardMarkup:
 def get_after_add_keyboard(has_multiple_supplements: bool = False) -> InlineKeyboardMarkup:
     """Keyboard shown after adding a supplement with logical next steps"""
     buttons = [
-        [InlineKeyboardButton("+ Add another supplement", callback_data="start_add")]
+        [InlineKeyboardButton("+ Додати ще БАД", callback_data="start_add")]
     ]
     
     # Show plan/schedule options if user has supplements
     if has_multiple_supplements:
         buttons.append([
-            InlineKeyboardButton("Build plan", callback_data="build_plan"),
-            InlineKeyboardButton("Check compatibility", callback_data="check_compatibility")
+            InlineKeyboardButton("📅 Скласти план", callback_data="build_plan"),
+            InlineKeyboardButton("Перевірити сумісність", callback_data="check_compatibility")
         ])
         buttons.append([
-            InlineKeyboardButton("Setup schedule", callback_data="setup_meal_times")
+            InlineKeyboardButton("⏰ Налаштувати нагадування", callback_data="setup_meal_times")
         ])
     
     buttons.append([
-        InlineKeyboardButton("All my supplements", callback_data="back_to_selection"),
-        InlineKeyboardButton("Sources", callback_data="show_sources")
+        InlineKeyboardButton("📋 Всі мої БАДи", callback_data="back_to_selection"),
+        InlineKeyboardButton("📚 Джерела", callback_data="show_sources")
     ])
     buttons.append([
-        InlineKeyboardButton("Help", callback_data="show_help")
+        InlineKeyboardButton("❓ Допомога", callback_data="show_help")
     ])
     
     return InlineKeyboardMarkup(buttons)
@@ -272,18 +411,18 @@ def get_enhanced_after_add_keyboard(has_multiple_supplements: bool = False) -> I
     if has_multiple_supplements:
         # User has multiple supplements - prioritize plan creation
         buttons = [
-            [InlineKeyboardButton("Compatibility check", callback_data="check_compatibility")],
-            [InlineKeyboardButton("Create plan", callback_data="build_plan")],
-            [InlineKeyboardButton("+ Add another", callback_data="start_add")],
-            [InlineKeyboardButton("View all my supplements", callback_data="back_to_selection")]
+            [InlineKeyboardButton("Перевірити сумісність", callback_data="check_compatibility")],
+            [InlineKeyboardButton("📅 Скласти план", callback_data="build_plan")],
+            [InlineKeyboardButton("+ Додати ще", callback_data="start_add")],
+            [InlineKeyboardButton("📋 Всі мої БАДи", callback_data="back_to_selection")]
         ]
     else:
         # First supplement - encourage adding more
         buttons = [
-            [InlineKeyboardButton("+ Add more supplements", callback_data="start_add")],
-            [InlineKeyboardButton("View supplement catalog", callback_data="back_to_selection")],
-            [InlineKeyboardButton("Scientific sources", callback_data="show_sources")],
-            [InlineKeyboardButton("How to use this bot", callback_data="show_help")]
+            [InlineKeyboardButton("+ Додати ще БАДи", callback_data="start_add")],
+            [InlineKeyboardButton("📋 Каталог БАДів", callback_data="back_to_selection")],
+            [InlineKeyboardButton("📚 Наукові джерела", callback_data="show_sources")],
+            [InlineKeyboardButton("❓ Як користуватись", callback_data="show_help")]
         ]
     
     return InlineKeyboardMarkup(buttons)
@@ -293,10 +432,10 @@ def get_not_found_keyboard(name: str) -> InlineKeyboardMarkup:
     """Keyboard when supplement info not found - ask user"""
     buttons = [
         [
-            InlineKeyboardButton("With food", callback_data=f"manual_food_yes:{name}"),
-            InlineKeyboardButton("Empty stomach", callback_data=f"manual_food_no:{name}")
+            InlineKeyboardButton("З їжею", callback_data=f"manual_food_yes:{name}"),
+            InlineKeyboardButton("Натщесерце", callback_data=f"manual_food_no:{name}")
         ],
-        [InlineKeyboardButton("x Cancel", callback_data="cancel_add")]
+        [InlineKeyboardButton("✕ Скасувати", callback_data="cancel_add")]
     ]
     return InlineKeyboardMarkup(buttons)
 
@@ -306,11 +445,11 @@ def get_time_keyboard(name: str, with_food: bool) -> InlineKeyboardMarkup:
     food_flag = "yes" if with_food else "no"
     buttons = [
         [
-            InlineKeyboardButton("Morning", callback_data=f"manual_time_morning:{name}:{food_flag}"),
-            InlineKeyboardButton("Any time", callback_data=f"manual_time_any:{name}:{food_flag}"),
-            InlineKeyboardButton("Evening", callback_data=f"manual_time_evening:{name}:{food_flag}")
+            InlineKeyboardButton("🌅 Вранці", callback_data=f"manual_time_morning:{name}:{food_flag}"),
+            InlineKeyboardButton("🌤 Будь-коли", callback_data=f"manual_time_any:{name}:{food_flag}"),
+            InlineKeyboardButton("🌙 Ввечері", callback_data=f"manual_time_evening:{name}:{food_flag}")
         ],
-        [InlineKeyboardButton("x Cancel", callback_data="cancel_add")]
+        [InlineKeyboardButton("✕ Скасувати", callback_data="cancel_add")]
     ]
     return InlineKeyboardMarkup(buttons)
 
@@ -964,7 +1103,55 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     if user_id not in user_selections:
         user_selections[user_id] = set()
-    
+
+    # === CHECK-IN FLOW ===
+    if data.startswith("checkin_yes_") or data.startswith("checkin_no_"):
+        taken = data.startswith("checkin_yes_")
+        streak_info = update_streak(user_id, taken)
+
+        current = streak_info.get("current_streak", 0)
+        longest = streak_info.get("longest_streak", 0)
+        total_taken = streak_info.get("total_taken", 0)
+        total_skipped = streak_info.get("total_skipped", 0)
+        total_days = total_taken + total_skipped
+
+        if taken:
+            if current >= 30:
+                badge = "🏆 Місяць поспіль! Легенда!"
+            elif current >= 14:
+                badge = "💎 Два тижні поспіль! Вражає!"
+            elif current >= 7:
+                badge = "🌟 Тиждень поспіль! Відмінно!"
+            elif current >= 3:
+                badge = "🔥 Так тримати!"
+            else:
+                badge = "✅ Записано!"
+
+            text = f"{badge}\n\n"
+            text += f"🔥 Поточний стрік: *{current} дн.*\n"
+            if longest > current:
+                text += f"🏅 Рекорд: {longest} дн.\n"
+            consistency = round(total_taken / total_days * 100) if total_days > 0 else 100
+            text += f"📊 Постійність: {consistency}% ({total_taken}/{total_days} днів)"
+        else:
+            text = "Зрозумів 💪\n\n"
+            text += "Стрік скинуто до 0, але завтра — новий шанс! 🌅\n"
+            if total_days > 0:
+                consistency = round(total_taken / total_days * 100)
+                text += f"📊 Всього: {total_taken}/{total_days} днів ({consistency}%)"
+
+        # Remove check-in buttons from original message
+        try:
+            await query.edit_message_reply_markup(reply_markup=None)
+        except Exception:
+            pass
+        await context.bot.send_message(
+            chat_id=user_id,
+            text=text,
+            parse_mode='Markdown'
+        )
+        return
+
     # === ADD FLOW ===
     if data == "start_add":
         user_adding[user_id] = True
@@ -1643,6 +1830,12 @@ def main():
         asyncio.set_event_loop(loop)
     
     application = Application.builder().token(token).build()
+
+    # Schedule reminder checks every 5 minutes
+    job_queue = application.job_queue
+    if job_queue:
+        job_queue.run_repeating(check_and_send_reminders, interval=300, first=60)
+        logger.info("Reminder job scheduled (every 5 min)")
     
     # Command handlers
     application.add_handler(CommandHandler("start", start))
