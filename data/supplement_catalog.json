@@ -275,7 +275,8 @@
         "best_time": "morning",
         "notes": "Жиророзчинний, приймати з їжею що містить жири. Може давати енергію — краще вранці."
       },
-      "source": "https://examine.com/supplements/coenzyme-q10/"
+      "source": "https://examine.com/supplements/coenzyme-q10/",
+      "added_by": []
     },
     "цитиколин": {
       "id": "цитиколин",
@@ -291,7 +292,8 @@
         "best_time": "any",
         "notes": "Unknown supplement. Safe recommendation: take with food to reduce stomach upset. (Based on supplement category analysis)"
       },
-      "source": "pattern_analysis"
+      "source": "pattern_analysis",
+      "added_by": []
     },
     "меланотан": {
       "id": "меланотан",
@@ -307,7 +309,8 @@
         "best_time": "any",
         "notes": "Unknown supplement. Safe recommendation: take with food to reduce stomach upset. (Based on supplement category analysis)"
       },
-      "source": "pattern_analysis"
+      "source": "pattern_analysis",
+      "added_by": []
     },
     "никотинамид_моноуклеотид": {
       "id": "никотинамид_моноуклеотид",
@@ -323,7 +326,8 @@
         "best_time": "any",
         "notes": "Unknown supplement. Safe recommendation: take with food to reduce stomach upset. (Based on supplement category analysis)"
       },
-      "source": "pattern_analysis"
+      "source": "pattern_analysis",
+      "added_by": []
     },
     "гиперзин": {
       "id": "гиперзин",
@@ -339,7 +343,8 @@
         "best_time": "any",
         "notes": "Unknown supplement. Safe recommendation: take with food to reduce stomach upset. (Based on supplement category analysis)"
       },
-      "source": "pattern_analysis"
+      "source": "pattern_analysis",
+      "added_by": []
     },
     "кверцитин": {
       "id": "кверцитин",
@@ -355,7 +360,8 @@
         "best_time": "any",
         "notes": "Unknown supplement. Safe recommendation: take with food to reduce stomach upset. (Based on supplement category analysis)"
       },
-      "source": "pattern_analysis"
+      "source": "pattern_analysis",
+      "added_by": []
     }
   }
 }

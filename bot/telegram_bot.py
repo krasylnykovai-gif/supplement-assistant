@@ -297,18 +297,29 @@ def reload_normalizer():
     normalizer = SupplementNormalizer()
 
 
-def save_supplement(supp_id: str, name: str, with_food: bool, fat_required: bool, 
-                    best_time: str, notes: str, source: str):
+def save_supplement(supp_id: str, name: str, with_food: bool, fat_required: bool,
+                    best_time: str, notes: str, source: str, added_by: int = None):
     """Save new supplement to catalog"""
     with open(CATALOG_PATH, 'r', encoding='utf-8') as f:
         catalog = json.load(f)
-    
-    catalog['supplements'][supp_id] = {
+
+    # If supplement already exists, just add this user to added_by
+    existing = catalog['supplements'].get(supp_id)
+    if existing and existing.get('user_added'):
+        if added_by and added_by not in existing.get('added_by', []):
+            existing.setdefault('added_by', []).append(added_by)
+        with open(CATALOG_PATH, 'w', encoding='utf-8') as f:
+            json.dump(catalog, f, ensure_ascii=False, indent=2)
+        reload_normalizer()
+        return
+
+    entry = {
         "id": supp_id,
         "name": name,
         "aliases": [name.lower()],
         "category": "custom",
         "user_added": True,
+        "added_by": [added_by] if added_by else [],
         "timing": {
             "with_food": with_food,
             "fat_required": fat_required,
@@ -317,10 +328,11 @@ def save_supplement(supp_id: str, name: str, with_food: bool, fat_required: bool
         },
         "source": source
     }
-    
+    catalog['supplements'][supp_id] = entry
+
     with open(CATALOG_PATH, 'w', encoding='utf-8') as f:
         json.dump(catalog, f, ensure_ascii=False, indent=2)
-    
+
     reload_normalizer()
 
 
@@ -333,9 +345,10 @@ def get_supplement_keyboard(user_id: int) -> InlineKeyboardMarkup:
     row = []
     
     for supp_id, supp_data in supplements.items():
-        # Show only base supplements in main menu (not user-added)
+        # Show base supplements + supplements this user personally added
         if supp_data.get('user_added', False):
-            continue
+            if user_id not in supp_data.get('added_by', []):
+                continue
         mark = "✅ " if supp_id in selected else ""
         btn = InlineKeyboardButton(
             f"{mark}{supp_data['name']}", 
@@ -658,7 +671,8 @@ async def process_new_supplement(update: Update, context: ContextTypes.DEFAULT_T
             fat_required=info.fat_required,
             best_time=info.best_time,
             notes=info.notes,
-            source=info.source
+            source=info.source,
+            added_by=user_id
         )
         
         # Format enhanced response with full supplement information
@@ -1229,7 +1243,8 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             fat_required=False,
             best_time=time_part,
             notes="Додано вручну користувачем",
-            source="user_manual"
+            source="user_manual",
+            added_by=user_id
         )
         
         # Also save to intelligent research DB for future users
