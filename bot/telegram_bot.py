@@ -344,9 +344,11 @@ def get_supplement_keyboard(user_id: int) -> InlineKeyboardMarkup:
     row = []
     
     for supp_id, supp_data in supplements.items():
-        # Show base supplements + supplements this user personally added
+        # Show base supplements + user-added supplements visible to this user
         if supp_data.get('user_added', False):
-            if user_id not in supp_data.get('added_by', []):
+            added_by_list = supp_data.get('added_by', [])
+            # Show if: user is in added_by, OR added_by is empty (legacy entries)
+            if added_by_list and user_id not in added_by_list:
                 continue
         mark = "✅ " if supp_id in selected else ""
         btn = InlineKeyboardButton(
@@ -562,7 +564,8 @@ async def process_new_supplement(update: Update, context: ContextTypes.DEFAULT_T
     # Small delay to show the message
     await asyncio.sleep(0.5)
     
-    # Update search message
+    # Update search message with delay
+    await asyncio.sleep(0.8)  # Rate limit protection
     if is_callback:
         await update.callback_query.edit_message_text(
             f"🔍 *Шукаю {name}...*\n\n⚙️ Перевіряю базу данних... ✅", 
@@ -574,15 +577,50 @@ async def process_new_supplement(update: Update, context: ContextTypes.DEFAULT_T
             parse_mode='Markdown'
         )
     
-    # Check if already exists
+    # Check if already exists in catalog
     existing = normalizer.normalize(name)
     if existing:
-        user_supplement_count = len(user_selections.get(user_id, set()))
+        supplements = normalizer.get_all_supplements()
+        existing_supp = supplements.get(existing, {})
+        existing_name = existing_supp.get('name', name)
+
+        # For user-added supplements: ensure current user is in added_by
+        if existing_supp.get('user_added', False):
+            added_by_list = existing_supp.get('added_by', [])
+            if user_id not in added_by_list:
+                added_by_list.append(user_id)
+                existing_supp['added_by'] = added_by_list
+                with open(CATALOG_PATH, 'r', encoding='utf-8') as f:
+                    catalog = json.load(f)
+                catalog['supplements'][existing] = existing_supp
+                with open(CATALOG_PATH, 'w', encoding='utf-8') as f:
+                    json.dump(catalog, f, ensure_ascii=False, indent=2)
+                reload_normalizer()
+
+        # Auto-select the supplement for the user
+        if user_id not in user_selections:
+            user_selections[user_id] = set()
+        user_selections[user_id].add(existing)
+
+        user_supplement_count = len(user_selections[user_id])
         has_multiple = user_supplement_count > 1
-        
-        text = f"ℹ️ *{name}* вже є у списку!\n\nОбери його зі списку БАДів або додай інший."
-        keyboard = get_after_add_keyboard(has_multiple)
-        
+
+        text = f"✅ *{existing_name}* знайдено і додано до твого списку!\n\n"
+        text += f"💡 Цей БАД вже є в системі — автоматично відмічено для тебе.\n\n"
+        text += "━━━━━━━━━━━━━━━━━━━━━━\n"
+        text += "🎯 *ЩО РОБИТИ ДАЛІ?*\n\n"
+        if has_multiple:
+            text += "• Перевірити сумісність всіх БАДів\n"
+            text += "• 📅 Створити розклад прийому\n"
+            text += "• Додати ще БАДів\n"
+        else:
+            text += "• Додати ще БАДів для комплексного підходу\n"
+            text += "• 📋 Переглянути каталог БАДів\n"
+        text += "\n👇 *Обери дію нижче:*"
+
+        keyboard = get_enhanced_after_add_keyboard(has_multiple)
+        user_adding.pop(user_id, None)
+
         if is_callback:
             await update.callback_query.edit_message_text(
                 text, reply_markup=keyboard, parse_mode='Markdown'
@@ -593,7 +631,8 @@ async def process_new_supplement(update: Update, context: ContextTypes.DEFAULT_T
             )
         return
     
-    # Update search message - looking up info
+    # Update search message - looking up info with delay
+    await asyncio.sleep(0.8)  # Rate limit protection
     if is_callback:
         await update.callback_query.edit_message_text(
             f"🔍 *Шукаю {name}...*\n\n"
@@ -691,6 +730,11 @@ async def process_new_supplement(update: Update, context: ContextTypes.DEFAULT_T
             added_by=user_id
         )
         
+        # Auto-select the newly added supplement for this user
+        if user_id not in user_selections:
+            user_selections[user_id] = set()
+        user_selections[user_id].add(supp_id)
+        
         # Format enhanced response with full supplement information
         food_text = "з їжею" if info.with_food else "натщесерце"
         if info.fat_required:
@@ -703,7 +747,7 @@ async def process_new_supplement(update: Update, context: ContextTypes.DEFAULT_T
         }
         
         # Check if user has multiple supplements for better keyboard
-        user_supplement_count = len(user_selections.get(user_id, set())) + 1  # +1 for just added
+        user_supplement_count = len(user_selections.get(user_id, set()))
         has_multiple = user_supplement_count > 1
         
         # Create comprehensive information message
@@ -1262,6 +1306,11 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             source="user_manual",
             added_by=user_id
         )
+        
+        # Auto-select the manually added supplement for this user
+        if user_id not in user_selections:
+            user_selections[user_id] = set()
+        user_selections[user_id].add(supp_id)
         
         # Also save to intelligent research DB for future users
         try:

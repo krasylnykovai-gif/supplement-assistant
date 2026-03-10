@@ -831,13 +831,21 @@ def lookup_supplement(name: str, use_intelligent_lookup: bool = True, use_fuzzy_
                 lookup_engine = IntelligentLookup(data_dir, brave_api_key)
                 
                 # Run research with timeout (max 15 seconds)
-                async def research_with_timeout():
-                    return await asyncio.wait_for(
-                        lookup_engine.research_supplement(name), 
-                        timeout=15.0
-                    )
-                
-                research_result = asyncio.run(research_with_timeout())
+                try:
+                    # Check if we're already in an event loop
+                    loop = asyncio.get_running_loop()
+                    # We're in an event loop, so we can't use asyncio.run()
+                    # Just skip intelligent lookup to avoid blocking
+                    research_result = None
+                except RuntimeError:
+                    # No running loop, safe to use asyncio.run()
+                    async def research_with_timeout():
+                        return await asyncio.wait_for(
+                            lookup_engine.research_supplement(name), 
+                            timeout=15.0
+                        )
+                    
+                    research_result = asyncio.run(research_with_timeout())
                 
                 if research_result and research_result.confidence > 0.3:  # Minimum confidence threshold
                     return SupplementInfo(
