@@ -122,7 +122,9 @@ def update_streak(user_id: int, taken: bool) -> dict:
 async def check_and_send_reminders(context) -> None:
     """JobQueue task: runs every 5 min, sends due reminders with check-in buttons."""
     global sent_reminders_today
-    now = datetime.now()
+    # Use Kyiv timezone explicitly (UTC+2 winter / UTC+3 summer)
+    from zoneinfo import ZoneInfo
+    now = datetime.now(ZoneInfo("Europe/Kiev")).replace(tzinfo=None)
     today = now.date().isoformat()
 
     # Reset dedup set at midnight
@@ -134,7 +136,7 @@ async def check_and_send_reminders(context) -> None:
     for user_id in user_ids:
         try:
             # get reminders due in the next ~6 minutes (0.1 hours)
-            upcoming = scheduler.get_next_reminders(int(user_id), hours_ahead=0.1)
+            upcoming = scheduler.get_next_reminders(int(user_id), hours_ahead=0.17)  # ~10 min window
             if not upcoming:
                 continue
 
